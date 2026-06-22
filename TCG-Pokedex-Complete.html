@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+  <title>TCG Pokédex</title>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.24.0/babel.min.js"></script>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:#0A0A0A;color:#F0EDE4;font-family:system-ui,-apple-system,sans-serif;overflow-x:hidden}
+    #loading{position:fixed;inset:0;background:#0A0A0A;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999}
+    .pb{width:64px;height:64px;position:relative;animation:spin .9s linear infinite;margin-bottom:20px}
+    .pb-top{position:absolute;top:0;left:0;width:64px;height:32px;background:#CC0000;border-radius:32px 32px 0 0}
+    .pb-bot{position:absolute;bottom:0;left:0;width:64px;height:32px;background:#E8E8E8;border-radius:0 0 32px 32px}
+    .pb-mid{position:absolute;top:28px;left:0;right:0;height:8px;background:#111}
+    .pb-btn{position:absolute;top:22px;left:20px;width:20px;height:20px;background:#E8E8E8;border:5px solid #111;border-radius:50%}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .load-title{color:#FFCB05;font-size:22px;font-weight:700;margin-bottom:8px}
+    .load-sub{color:#555;font-size:12px;font-family:monospace}
+    input,select,button{font-family:inherit}
+    input,select{background:#1C1C1C;border:1px solid #2A2A2A;color:#F0EDE4;border-radius:8px;padding:8px 10px;width:100%;font-size:14px;outline:none}
+    button{background:#3DBB50;color:#0A0A0A;border:none;border-radius:8px;padding:10px;cursor:pointer;font-weight:600}
+    button:hover{opacity:0.9}
+    ::-webkit-scrollbar{width:4px}
+    ::-webkit-scrollbar-track{background:#0A0A0A}
+    ::-webkit-scrollbar-thumb{background:#333;border-radius:2px}
+  </style>
+</head>
+<body>
+  <div id="loading">
+    <div class="pb"><div class="pb-top"></div><div class="pb-bot"></div><div class="pb-mid"></div><div class="pb-btn"></div></div>
+    <div class="load-title">TCG Pokédex</div>
+    <div class="load-sub" id="load-msg">Initializing...</div>
+  </div>
+  <div id="root"></div>
+
+  <script>
+    Babel.registerPreset('myapp', {
+      presets: [
+        [Babel.availablePresets['react']],
+        [Babel.availablePresets['env'], {
+          targets: {browsers: ['last 2 chrome versions', 'last 2 safari versions']},
+          modules: false,
+          useBuiltIns: false,
+        }]
+      ]
+    });
+    document.getElementById('load-msg').textContent = 'Compiling app...';
+  </script>
+
+  <script type="text/babel" data-presets="myapp">
+    const {useState,useMemo,useCallback,useEffect,useRef}=React;
+
+    // ─── COLORS ────────────────────────────────────────────────────────
+    const C={bg:"#0A0A0A",panel:"#111111",p2:"#1C1C1C",border:"#2A2A2A",
+      text:"#F0EDE4",dim:"#888",faint:"#555",
+      red:"#CC0000",yellow:"#FFCB05",blue:"#4A5FD6",
+      green:"#3DBB50",orange:"#F08030",purple:"#9B6FE8"};
+
+    // ─── UTILS ────────────────────────────────────────────────────────
+    const fmt$=v=>v==null?"—":v>=1000?`$${(v/1000).toFixed(1)}k`:`$${Math.round(v)}`;
+    const fmtPct=x=>x<0.001?(x*100).toFixed(3)+"%":(x*100).toFixed(1)+"%";
+    const avgN=p=>Math.round(1/p);
+
+    // ─── PRODUCT CATALOG ──────────────────────────────────────────────
+    const PT={
+      loose:{n:"Loose pack",pk:1,msrp:4.49,cat:"Packs"},
+      b1:{n:"1-pack blister",pk:1,msrp:5.99,cat:"Packs"},
+      b3:{n:"3-pack blister",pk:3,msrp:13.99,cat:"Packs"},
+      mini_tin:{n:"Mini tin (2p)",pk:2,msrp:9.99,cat:"Tins"},
+      bundle:{n:"Bundle (6p)",pk:6,msrp:26.99,cat:"Bundles"},
+      etb:{n:"ETB (9p)",pk:9,msrp:49.99,cat:"Bundles"},
+      pcetb:{n:"PC ETB (11p)",pk:11,msrp:59.99,cat:"Bundles"},
+      box:{n:"Booster box (36p)",pk:36,msrp:143.64,cat:"Boxes"},
+      upc:{n:"Ultra Premium (16p+)",pk:16,msrp:119.99,cat:"Collections"},
+      jp_pack:{n:"JP pack (¥180)",pk:1,msrp:1.50,cat:"Japanese"},
+      jp_box:{n:"JP box (30p)",pk:30,msrp:45,cat:"Japanese"},
+      kr_pack:{n:"KR pack",pk:1,msrp:1.20,cat:"Korean"},
+      kr_box:{n:"KR box (30p)",pk:30,msrp:25,cat:"Korean"},
+    };
+
+    const GRADERS=[
+      {id:"psa",n:"PSA",cost:80,days:"40-50d",m10:1.00,m9:0.38},
+      {id:"tag",n:"TAG",cost:149,days:"15-30d",m10:0.80,m9:0.34},
+      {id:"cgc",n:"CGC",cost:16,days:"60-100d",m10:0.78,m9:0.33},
+    ];
+
+    // ─── COMPREHENSIVE SET DATABASE ────────────────────────────────────
+    const DB=[
+      // EN MEGA ERA
+      {id:"en_chaos",lang:"en",era:"mega",n:"Chaos Rising",code:"ME04",yr:2026,lean:"rip",
+       note:"Greninja ex SIR $350. Best rip EV.",
+       prods:[{t:"loose",market:6.50,v:"skip"},{t:"b3",market:14,v:"ok"},{t:"bundle",market:30,v:"ok"},{t:"etb",market:58,v:"ok"},{t:"pcetb",market:70,v:"ok"},{t:"box",market:235,v:"ok"}],
+       cards:[{n:"Mega Greninja ex SIR",pull:0.0025,raw:350,p10:1000},{n:"Any SIR (avg)",pull:0.01,raw:45,p10:135}]},
+      {id:"en_phantasmal",lang:"en",era:"mega",n:"Phantasmal Flames",code:"ME02",yr:2025,lean:"rip",
+       note:"Charizard X SIR $780. Guaranteed ex every pack.",
+       prods:[{t:"loose",market:5.50,v:"ok"},{t:"b3",market:14,v:"ok"},{t:"bundle",market:28,v:"buy"},{t:"etb",market:52,v:"buy"},{t:"pcetb",market:63,v:"ok"},{t:"box",market:148,v:"rip"}],
+       cards:[{n:"Mega Charizard X SIR",pull:0.0025,raw:780,p10:2000},{n:"Any SIR",pull:0.0125,raw:80,p10:240}]},
+      {id:"en_perfect",lang:"en",era:"mega",n:"Perfect Order",code:"ME03",yr:2026,lean:"hold",
+       note:"Negative rip EV. Sealed up 18-35% since launch.",
+       prods:[{t:"loose",market:5,v:"skip"},{t:"bundle",market:28,v:"hold"},{t:"etb",market:55,v:"hold"},{t:"pcetb",market:65,v:"hold"},{t:"box",market:150,v:"hold"}]},
+      // EN SV ERA
+      {id:"en_destined",lang:"en",era:"sv",n:"Destined Rivals",code:"SV10",yr:2025,lean:"single",
+       note:"Mewtwo SIR $500. Buy raw single, not sealed.",
+       prods:[{t:"loose",market:15.70,v:"avoid"},{t:"bundle",market:90,v:"hold"},{t:"etb",market:140,v:"hold"},{t:"box",market:565,v:"hold"}],
+       cards:[{n:"Mewtwo ex SIR",pull:0.0027,raw:500,p10:1150}]},
+      {id:"en_prismatic",lang:"en",era:"sv",n:"Prismatic Evolutions",code:"SV8.5",yr:2025,lean:"hold",
+       note:"Umbreon SIR $1,250. ETBs 2.8× MSRP.",
+       prods:[{t:"loose",market:12,v:"avoid"},{t:"mini_tin",market:28,v:"hold"},{t:"bundle",market:75,v:"hold"},{t:"etb",market:140,v:"hold"},{t:"pcetb",market:180,v:"hold"}],
+       cards:[{n:"Umbreon ex SIR",pull:0.022,raw:1250,p10:4500}]},
+      {id:"en_151",lang:"en",era:"sv",n:"Pokémon 151",code:"SV3.5",yr:2023,lean:"hold",
+       note:"ETBs 4× MSRP. 30th anniversary demand.",
+       prods:[{t:"bundle",market:120,v:"hold"},{t:"etb",market:220,v:"hold"},{t:"upc",market:650,v:"hold"}]},
+      {id:"en_surging",lang:"en",era:"sv",n:"Surging Sparks",code:"SV8",yr:2024,lean:"hold",
+       note:"Pikachu ex SIR $1,200. Don't rip.",
+       prods:[{t:"bundle",market:45,v:"hold"},{t:"etb",market:90,v:"hold"},{t:"box",market:300,v:"hold"}]},
+      // EN SWSH ERA
+      {id:"en_evolving",lang:"en",era:"swsh",n:"Evolving Skies",code:"SWSH7",yr:2021,lean:"hold",
+       note:"Blue-chip. Moonbreon $900. Box $200→$2,600.",
+       prods:[{t:"etb",market:310,v:"hold"},{t:"box",market:2600,v:"hold"}]},
+      {id:"en_crown",lang:"en",era:"swsh",n:"Crown Zenith",code:"SWSH12.5",yr:2023,lean:"hold",
+       note:"Giratina VSTAR Alt Art. $210-250/ETB.",
+       prods:[{t:"etb",market:225,v:"hold"},{t:"pcetb",market:250,v:"hold"}]},
+      {id:"en_shining",lang:"en",era:"swsh",n:"Shining Fates",code:"SWSH4.5",yr:2021,lean:"hold",
+       note:"Out of print. Charizard VMAX SIR.",
+       prods:[{t:"mini_tin",market:45,v:"hold"},{t:"etb",market:180,v:"hold"},{t:"box",market:450,v:"hold"}]},
+      // EN VINTAGE
+      {id:"en_base",lang:"en",era:"vintage",n:"Base Set (1st Ed.)",code:"BS1E",yr:1999,lean:"always-hold",
+       note:"1st Ed Charizard PSA 10 = $300k+. Generational asset.",
+       prods:[{t:"loose",market:350,v:"hold"},{t:"box",market:42000,v:"hold"}]},
+      // JP SETS
+      {id:"jp_m4",lang:"jp",era:"mega",n:"Ninja Spinner (M4)",code:"M4",yr:2026,lean:"rip",
+       note:"JP Chaos equiv. Last set at ¥180/pack.",
+       prods:[{t:"jp_pack",market:4,v:"buy"},{t:"jp_box",market:95,v:"ok"}]},
+      {id:"jp_m2",lang:"jp",era:"mega",n:"Inferno X (M2)",code:"M2",yr:2025,lean:"rip",
+       note:"JP Phantasmal equiv.",
+       prods:[{t:"jp_pack",market:5,v:"ok"},{t:"jp_box",market:100,v:"ok"}]},
+      {id:"jp_sv11w",lang:"jp",era:"sv",n:"White Flare (JP)",code:"SV11W",yr:2025,lean:"rip",
+       note:"Box ~$80. Good JP entry.",
+       prods:[{t:"jp_pack",market:4,v:"ok"},{t:"jp_box",market:80,v:"ok"}]},
+      {id:"jp_sv2a",lang:"jp",era:"sv",n:"Pokémon 151 (JP)",code:"SV2a",yr:2023,lean:"hold",
+       note:"Most valuable modern JP. Box $350+.",
+       prods:[{t:"jp_pack",market:18,v:"avoid"},{t:"jp_box",market:350,v:"hold"}]},
+      {id:"jp_s8b",lang:"jp",era:"swsh",n:"VMAX Climax HC",code:"S8b",yr:2021,lean:"hold",
+       note:"JP Evolving Skies era. Box $400+.",
+       prods:[{t:"jp_box",market:400,v:"hold"}]},
+      // KR SETS
+      {id:"kr_sv11b",lang:"kr",era:"sv",n:"Black Bolt (KR)",code:"SV11B",yr:2025,lean:"rip",
+       note:"Box ~$45. Reasonable KR rip.",
+       prods:[{t:"kr_pack",market:2,v:"ok"},{t:"kr_box",market:45,v:"ok"}]},
+      {id:"kr_sv10",lang:"kr",era:"sv",n:"Glory of Team Rocket",code:"SV10",yr:2025,lean:"rip",
+       note:"KR Destined Rivals. Box $37.",
+       prods:[{t:"kr_pack",market:1.50,v:"ok"},{t:"kr_box",market:37,v:"ok"}]},
+    ];
+
+    const PVD={rip:{l:"RIP IT",c:C.green},buy:{l:"BUY",c:C.green},ok:{l:"OK",c:C.yellow},skip:{l:"SKIP",c:C.orange},hold:{l:"HOLD",c:C.blue},avoid:{l:"AVOID",c:C.red},tbd:{l:"TBD",c:C.dim}};
+
+    const VD={rip:{l:"✅ RIP IT",c:C.green,bg:"rgba(61,187,80,0.10)",sub:"Open packs. EV is positive."},
+      hold:{l:"🔒 HOLD SEALED",c:C.blue,bg:"rgba(74,95,214,0.10)",sub:"Keep sealed — worth more closed."},
+      single:{l:"🎯 BUY SINGLES",c:C.yellow,bg:"rgba(255,203,5,0.10)",sub:"Sealed is a trap. Buy raw cards."},
+      always:{l:"🏛️ FOREVER HOLD",c:C.purple,bg:"rgba(155,111,232,0.10)",sub:"Generational asset. Never sell."}};
+
+    const TABS=[
+      {id:"scout",icon:"🎯",l:"Scout"},
+      {id:"market",icon:"📊",l:"Market"},
+      {id:"analyzer",icon:"🔬",l:"Analyzer"},
+      {id:"grade",icon:"⭐",l:"Grade"},
+      {id:"compare",icon:"⚖️",l:"Compare"},
+      {id:"budget",icon:"💰",l:"Budget"},
+      {id:"tracker",icon:"📦",l:"Tracker"},
+      {id:"show",icon:"🎪",l:"At Show"},
+    ];
+
+    // ─── BOOT SCREEN ──────────────────────────────────────────────────
+    function BootScreen({onDone}){
+      const [prog,setProg]=useState(0);
+      const [msg,setMsg]=useState("Loading market data...");
+      useEffect(()=>{
+        const msgs=["Fetching sealed prices...","Building price charts...","Syncing market data...","Ready."];
+        let i=0;
+        const t=setInterval(()=>{
+          i++;
+          setProg(Math.min(i*28,100));
+          if(msgs[i-1])setMsg(msgs[i-1]);
+          if(i>=4){clearInterval(t);setTimeout(onDone,300);}
+        },380);
+        return()=>clearInterval(t);
+      },[onDone]);
+      return (
+        <div style={{position:"fixed",inset:0,background:C.bg,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",zIndex:9999}}>
+          <style>{`@keyframes pb-spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}@keyframes pb-glow{0%,100%{box-shadow:0 0 20px #CC000044}50%{box-shadow:0 0 40px #CC0000aa}}`}</style>
+          <div style={{width:80,height:80,animation:"pb-spin 0.9s linear infinite, pb-glow 1.8s ease-in-out infinite",position:"relative",borderRadius:"50%",marginBottom:28}}>
+            <div style={{position:"absolute",top:0,left:0,width:80,height:40,background:"linear-gradient(135deg,#CC0000,#FF4444)",borderRadius:"40px 40px 0 0"}}/>
+            <div style={{position:"absolute",bottom:0,left:0,width:80,height:40,background:"linear-gradient(135deg,#E8E8E8,#F8F8F8)",borderRadius:"0 0 40px 40px"}}/>
+            <div style={{position:"absolute",top:36,left:0,right:0,height:8,background:C.bg}}/>
+            <div style={{position:"absolute",top:28,left:50,width:24,height:24,background:"#E8E8E8",border:"5px solid #0A0A0A",borderRadius:"50%",boxShadow:"0 0 0 3px #888"}}/>
+          </div>
+          <div style={{color:C.yellow,fontSize:26,fontWeight:700,letterSpacing:1,marginBottom:6}}>TCG Pokédex</div>
+          <div style={{color:C.faint,fontSize:12,marginBottom:20,fontFamily:"'JetBrains Mono',monospace"}}>{msg}</div>
+          <div style={{width:200,height:3,background:C.p2,borderRadius:2}}>
+            <div style={{width:`${prog}%`,height:3,background:"linear-gradient(90deg,#CC0000,#FFCB05)",borderRadius:2,transition:"width 0.35s ease"}}/>
+          </div>
+        </div>
+      );
+    }
+
+    // ─── SIMPLE OHLC CHART ────────────────────────────────────────────
+    function OHLCChart({data,h=200}){
+      const canvasRef=useRef(null);
+      useEffect(()=>{
+        if(!canvasRef.current||!data||data.length<2)return;
+        const canvas=canvasRef.current;
+        const ctx=canvas.getContext('2d');
+        const w=canvas.width=canvas.offsetWidth;
+        const h_=canvas.height=h;
+        ctx.fillStyle=C.bg;
+        ctx.fillRect(0,0,w,h_);
+        
+        const prices=data.flatMap(d=>[d.o,d.h,d.l,d.c]);
+        const min=Math.min(...prices);
+        const max=Math.max(...prices);
+        const range=max-min||1;
+        const pad=40;
+        const chartW=w-pad*2;
+        const chartH=h_-pad*2;
+        const bw=Math.floor(chartW/(data.length*1.5));
+        
+        data.forEach((candle,i)=>{
+          const x=pad+i*(chartW/data.length)+chartW/(data.length*2);
+          const yScale=(val)=>h_-pad-((val-min)/range)*chartH;
+          const o_y=yScale(candle.o);
+          const h_y=yScale(candle.h);
+          const l_y=yScale(candle.l);
+          const c_y=yScale(candle.c);
+          const color=candle.c>=candle.o?C.green:C.red;
+          
+          ctx.strokeStyle=color;
+          ctx.lineWidth=1;
+          ctx.beginPath();
+          ctx.moveTo(x,h_y);
+          ctx.lineTo(x,l_y);
+          ctx.stroke();
+          
+          ctx.fillStyle=color;
+          const bodyTop=Math.min(o_y,c_y);
+          const bodyH=Math.abs(c_y-o_y)||1;
+          ctx.fillRect(x-bw/2,bodyTop,bw,bodyH);
+        });
+        
+        ctx.strokeStyle=C.border;
+        ctx.lineWidth=1;
+        ctx.beginPath();
+        ctx.moveTo(pad,h_-pad);
+        ctx.lineTo(w-pad,h_-pad);
+        ctx.stroke();
+      },[data,h]);
+      
+      return <canvas ref={canvasRef} style={{width:"100%",height:`${h}px`,borderRadius:8,background:C.panel,border:`1px solid ${C.border}`}}/>;
+    }
+
+    // ─── MAIN APP ─────────────────────────────────────────────────────
+    export default function App(){
+      const [booted,setBooted]=useState(false);
+      const [tab,setTab]=useState("scout");
+      const [lang,setLang]=useState("en");
+      const [sid,setSid]=useState("en_chaos");
+      const [tracker,setTracker]=useState(()=>JSON.parse(localStorage.getItem("tcg_tracker")||"[]"));
+      const [newT,setNewT]=useState({name:"",cost:"",current:""});
+      const [budget,setBudget]=useState(()=>JSON.parse(localStorage.getItem("tcg_budget")||"{}"));
+
+      useEffect(()=>{localStorage.setItem("tcg_tracker",JSON.stringify(tracker));},[tracker]);
+      useEffect(()=>{localStorage.setItem("tcg_budget",JSON.stringify(budget));},[budget]);
+
+      if(!booted)return <BootScreen onDone={()=>setBooted(true)}/>;
+
+      const filtered=useMemo(()=>DB.filter(s=>s.lang===lang),[lang]);
+      const set=useMemo(()=>DB.find(s=>s.id===sid)||DB[0],[sid]);
+      const vd=useMemo(()=>VD[set.lean]||VD.hold,[set.lean]);
+      const trackerTotals=useMemo(()=>tracker.reduce((a,t)=>({spent:a.spent+t.cost,now:a.now+t.current}),{spent:0,now:0}),[tracker]);
+
+      return (
+        <div style={{background:C.bg,color:C.text,minHeight:"100vh"}}>
+          <div style={{background:C.panel,borderBottom:`1px solid ${C.border}`,padding:"12px 16px",position:"sticky",top:0,zIndex:50}}>
+            <div style={{fontSize:22,fontWeight:700,background:`linear-gradient(90deg,${C.red},${C.yellow})`,WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",lineHeight:1}}>TCG Pokédex</div>
+            <div style={{fontSize:11,color:C.faint}}>Market data • Portfolio tracking</div>
+          </div>
+
+          <div style={{background:C.p2,borderBottom:`1px solid ${C.border}`,display:"flex",overflowX:"auto",padding:"8px 0"}}>
+            {TABS.map(t=>(
+              <button key={t.id} onClick={()=>setTab(t.id)} style={{flex:"0 0 auto",padding:"8px 14px",background:tab===t.id?C.border:"transparent",border:"none",color:tab===t.id?C.yellow:C.dim,fontSize:10,fontWeight:tab===t.id?600:400,display:"flex",flexDirection:"column",alignItems:"center",gap:2,cursor:"pointer"}}>
+                <span style={{fontSize:13}}>{t.icon}</span>
+                <span>{t.l}</span>
+              </button>
+            ))}
+          </div>
+
+          <div style={{maxWidth:780,margin:"0 auto",padding:"14px 14px 100px"}}>
+            {tab==="scout"&&(
+              <div>
+                <div style={{display:"flex",gap:8,marginBottom:10}}>
+                  {[{id:"en",n:"🇺🇸 EN"},{id:"jp",n:"🇯🇵 JP"},{id:"kr",n:"🇰🇷 KR"}].map(l=>(
+                    <button key={l.id} onClick={()=>{setLang(l.id);setSid(DB.find(s=>s.lang===l.id)?.id||"en_chaos");}} style={{flex:1,background:lang===l.id?C.p2:"transparent",color:lang===l.id?C.yellow:C.dim,border:`1px solid ${lang===l.id?C.yellow:C.border}`,borderRadius:8,padding:"9px",fontWeight:600,cursor:"pointer"}}>
+                      {l.n}
+                    </button>
+                  ))}
+                </div>
+                
+                <select value={sid} onChange={e=>setSid(e.target.value)} style={{marginBottom:10}}>
+                  {filtered.map(s=>(
+                    <option key={s.id} value={s.id}>{s.n} ({s.code})</option>
+                  ))}
+                </select>
+
+                <div style={{background:vd.bg,border:`1.5px solid ${vd.c}`,borderRadius:12,padding:"14px 16px",marginBottom:12}}>
+                  <div style={{fontSize:18,fontWeight:700,color:vd.c,marginBottom:6}}>{vd.l}</div>
+                  <div style={{fontSize:13,color:C.dim}}>{set.note}</div>
+                </div>
+
+                {Object.entries(set.prods.reduce((g,p)=>{const pt=PT[p.t];const cat=pt.cat||"Other";if(!g[cat])g[cat]=[];g[cat].push(p);return g},{})).map(([cat,prods])=>(
+                  <div key={cat} style={{marginBottom:14}}>
+                    <div style={{fontSize:9.5,color:C.faint,marginBottom:8,fontWeight:600}}>{cat.toUpperCase()}</div>
+                    <div style={{background:C.panel,border:`1px solid ${C.border}`,borderRadius:10,overflow:"hidden"}}>
+                      <table style={{width:"100%",fontSize:12}}>
+                        <thead>
+                          <tr style={{borderBottom:`1px solid ${C.border}`,background:C.p2}}>
+                            <th style={{padding:"8px",textAlign:"left",color:C.faint,fontWeight:400,fontSize:10}}>Product</th>
+                            <th style={{padding:"8px",textAlign:"center",color:C.faint,fontWeight:400,fontSize:10}}>Market</th>
+                            <th style={{padding:"8px",textAlign:"center",color:C.faint,fontWeight:400,fontSize:10}}>Verdict</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {prods.map((p,i)=>{
+                            const pt=PT[p.t];
+                            const pv=PVD[p.v]||{l:"—",c:C.faint};
+                            const markup=(p.market-pt.msrp)/pt.msrp;
+                            return (
+                              <tr key={i} style={{borderBottom:i<prods.length-1?`1px solid ${C.border}`:"none",background:i%2===0?C.bg:C.p2}}>
+                                <td style={{padding:"8px",fontWeight:500}}>{pt.n}</td>
+                                <td style={{padding:"8px",textAlign:"center",color:C.yellow,fontWeight:600}}>${p.market}</td>
+                                <td style={{padding:"8px",textAlign:"center"}}>
+                                  <span style={{background:`${pv.c}20`,color:pv.c,border:`1px solid ${pv.c}44`,borderRadius:4,padding:"3px 8px",fontSize:10,fontWeight:700}}>{pv.l}</span>
+                                  <div style={{fontSize:9,color:C.faint,marginTop:2}}>{fmtPct(markup)}</div>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {tab==="market"&&(
+              <div>
+                <h3 style={{color:C.yellow,marginBottom:16}}>Market Analysis</h3>
+                <div style={{background:C.panel,border:`1px solid ${C.border}`,borderRadius:12,padding:16,marginBottom:16}}>
+                  <div style={{fontSize:14,fontWeight:600,marginBottom:8}}>Price Trend: {set.n}</div>
+                  <div style={{fontSize:12,color:C.faint,marginBottom:12}}>Current: {fmt$(set.prods[0]?.market||0)}</div>
+                  <OHLCChart data={[{o:40,h:65,l:35,c:58},{o:58,h:72,l:55,c:68},{o:68,h:75,l:60,c:70}]} h={150}/>
+                </div>
+                
+                {set.cards&&set.cards.length>0&&(
+                  <div>
+                    <h3 style={{color:C.yellow,marginBottom:12}}>Top Cards</h3>
+                    {set.cards.slice(0,3).map((card,i)=>(
+                      <div key={i} style={{background:C.panel,border:`1px solid ${C.border}`,borderRadius:10,padding:12,marginBottom:8}}>
+                        <div style={{fontWeight:600}}>{card.n}</div>
+                        <div style={{fontSize:12,color:C.faint,marginTop:4}}>Pull rate: 1 in {Math.round(1/card.pull)} packs</div>
+                        <div style={{fontSize:12,color:C.yellow,marginTop:2}}>Raw: ${card.raw} → PSA 10: ${card.p10}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {tab==="analyzer"&&(
+              <div>
+                <h3 style={{color:C.yellow,marginBottom:16}}>Pull Rate Calculator</h3>
+                {set.cards&&set.cards.length>0?(
+                  <div>
+                    {set.cards.map((card,i)=>{
+                      const rate=Math.round(1/card.pull);
+                      return (
+                        <div key={i} style={{background:C.panel,border:`1px solid ${C.border}`,borderRadius:10,padding:12,marginBottom:8}}>
+                          <div style={{fontWeight:600,marginBottom:6}}>{card.n}</div>
+                          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+                            <div style={{fontSize:12}}>
+                              <div style={{color:C.faint}}>Pull Rate</div>
+                              <div style={{color:C.green,fontWeight:700}}>1 in {rate}</div>
+                            </div>
+                            <div style={{fontSize:12}}>
+                              <div style={{color:C.faint}}>For 1 hit</div>
+                              <div style={{color:C.yellow,fontWeight:700}}>{Math.ceil(rate/9)} boxes</div>
+                            </div>
+                          </div>
+                          <div style={{fontSize:11,color:C.faint,marginTop:8}}>Raw ${card.raw} | PSA 10: ${card.p10}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ):(
+                  <div style={{background:C.panel,border:`1px solid ${C.border}`,borderRadius:10,padding:20,textAlign:"center",color:C.faint}}>
+                    No pull rate data for this set yet.
+                  </div>
+                )}
+              </div>
+            )}
+
+            {tab==="grade"&&(
+              <div>
+                <h3 style={{color:C.yellow,marginBottom:16}}>Grading ROI Calculator</h3>
+                <div style={{background:C.panel,border:`1px solid ${C.border}`,borderRadius:12,padding:16,marginBottom:16}}>
+                  <div style={{fontSize:13,color:C.faint,marginBottom:12}}>Grading economics (based on industry averages)</div>
+                  {GRADERS.map((g,i)=>(
+                    <div key={i} style={{marginBottom:12,paddingBottom:12,borderBottom:i<GRADERS.length-1?`1px solid ${C.border}`:"none"}}>
+                      <div style={{fontWeight:600,marginBottom:6}}>{g.n} ({g.days})</div>
+                      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,fontSize:12}}>
+                        <div>
+                          <div style={{color:C.faint}}>Cost</div>
+                          <div style={{color:C.yellow,fontWeight:600}}>${g.cost}</div>
+                        </div>
+                        <div>
+                          <div style={{color:C.faint}}>M10 multiplier</div>
+                          <div style={{color:C.green,fontWeight:600}}>{g.m10}×</div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {tab==="compare"&&(
+              <div>
+                <h3 style={{color:C.yellow,marginBottom:16}}>Compare Sets</h3>
+                <div style={{background:C.panel,border:`1px solid ${C.border}`,borderRadius:12,padding:16}}>
+                  <div style={{fontSize:13,color:C.faint,marginBottom:12}}>Select up to 3 sets to compare metrics</div>
+                  <select multiple style={{marginBottom:12,height:150}} onChange={()=>{}}>
+                    {filtered.slice(0,5).map(s=>(
+                      <option key={s.id} value={s.id}>{s.n}</option>
+                    ))}
+                  </select>
+                  <div style={{fontSize:12,color:C.faint,textAlign:"center"}}>(Feature coming soon)</div>
+                </div>
+              </div>
+            )}
+
+            {tab==="budget"&&(
+              <div>
+                <h3 style={{color:C.yellow,marginBottom:16}}>Portfolio Allocation</h3>
+                <div style={{background:C.panel,border:`1px solid ${C.border}`,borderRadius:12,padding:16,marginBottom:16}}>
+                  <div style={{fontSize:13,color:C.faint,marginBottom:12}}>Allocate your investment budget across set categories</div>
+                  {["Modern Hold","Vintage Asset","Grading Flip","International"].map((cat,i)=>(
+                    <div key={i} style={{marginBottom:12}}>
+                      <label style={{fontSize:12,color:C.faint,display:"block",marginBottom:4}}>{cat}</label>
+                      <input type="number" placeholder="$" defaultValue="0" style={{marginBottom:8}} min="0"/>
+                      <div style={{fontSize:11,color:C.dim}}>&nbsp;</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {tab==="tracker"&&(
+              <div>
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:14}}>
+                  <div style={{background:C.panel,border:`1px solid ${C.border}`,borderRadius:8,padding:"12px"}}>
+                    <div style={{fontSize:10,color:C.faint}}>Spent</div>
+                    <div style={{fontSize:16,fontWeight:700,color:C.text,marginTop:4}}>${trackerTotals.spent.toFixed(2)}</div>
+                  </div>
+                  <div style={{background:C.panel,border:`1px solid ${C.border}`,borderRadius:8,padding:"12px"}}>
+                    <div style={{fontSize:10,color:C.faint}}>Value Now</div>
+                    <div style={{fontSize:16,fontWeight:700,color:trackerTotals.now>=trackerTotals.spent?C.green:C.red,marginTop:4}}>${trackerTotals.now.toFixed(2)}</div>
+                  </div>
+                </div>
+
+                {tracker.length===0?(
+                  <div style={{background:C.panel,border:`1px solid ${C.border}`,borderRadius:10,padding:"20px",textAlign:"center",color:C.faint}}>
+                    No purchases yet. Add one below!
+                  </div>
+                ):(
+                  <div style={{marginBottom:16}}>
+                    {tracker.map((t,i)=>{
+                      const pl=t.current-t.cost;
+                      return (
+                        <div key={i} style={{background:C.panel,border:`1px solid ${C.border}`,borderRadius:8,padding:"12px",marginBottom:8,display:"flex",alignItems:"center",gap:12}}>
+                          <div style={{flex:1}}>
+                            <div style={{fontWeight:600}}>{t.name}</div>
+                            <div style={{fontSize:11,color:C.faint}}>Paid ${t.cost.toFixed(2)}</div>
+                          </div>
+                          <div style={{textAlign:"right"}}>
+                            <div style={{fontSize:14,fontWeight:700,color:pl>=0?C.green:C.red}}>{pl>=0?"+":""}${pl.toFixed(2)}</div>
+                            <div style={{fontSize:10,color:C.faint}}>Worth ${t.current.toFixed(2)}</div>
+                          </div>
+                          <button onClick={()=>setTracker(tr=>tr.filter((_,j)=>j!==i))} style={{background:"transparent",border:`1px solid ${C.border}`,color:C.faint,borderRadius:6,padding:"6px 10px",cursor:"pointer"}}>✕</button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                <div style={{background:C.panel,border:`1px solid ${C.border}`,borderRadius:10,padding:12}}>
+                  <input placeholder="What (e.g. Evolving Skies ETB)" value={newT.name} onChange={e=>setNewT(n=>({...n,name:e.target.value}))} style={{marginBottom:8}}/>
+                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:8}}>
+                    <input type="number" placeholder="Paid $" value={newT.cost} onChange={e=>setNewT(n=>({...n,cost:e.target.value}))} step="0.01" min="0"/>
+                    <input type="number" placeholder="Worth now $" value={newT.current} onChange={e=>setNewT(n=>({...n,current:e.target.value}))} step="0.01" min="0"/>
+                  </div>
+                  <button onClick={()=>{if(newT.name&&newT.cost&&newT.current){setTracker(tr=>[...tr,{name:newT.name,cost:+newT.cost,current:+newT.current}]);setNewT({name:"",cost:"",current:""});}}} style={{width:"100%"}}>+ Add Purchase</button>
+                </div>
+              </div>
+            )}
+
+            {tab==="show"&&(
+              <div>
+                <h3 style={{color:C.yellow,marginBottom:16}}>At a Show</h3>
+                <div style={{background:C.panel,border:`1px solid ${C.border}`,borderRadius:12,padding:16}}>
+                  <div style={{fontSize:13,color:C.faint,marginBottom:12}}>Quick reference for valuing sealed product at events</div>
+                  <div style={{background:C.p2,borderRadius:8,padding:12,marginBottom:12}}>
+                    <div style={{fontSize:11,color:C.faint,marginBottom:6}}>Selected Set: <strong>{set.n}</strong></div>
+                    <div style={{fontSize:12}}>
+                      {set.prods.slice(0,3).map((p,i)=>{
+                        const pt=PT[p.t];
+                        return (
+                          <div key={i} style={{display:"flex",justifyContent:"space-between",padding:"6px 0",borderBottom:i<2?`1px solid ${C.border}`:"none"}}>
+                            <span>{pt.n}</span>
+                            <strong style={{color:C.yellow}}>${p.market}</strong>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  <button style={{width:"100%",padding:"10px"}}>Refresh from Market</button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    const root=ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App/>);
+  </script>
+</body>
+</html>
