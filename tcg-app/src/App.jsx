@@ -19,6 +19,50 @@ const fmt$=v=>(v==null||!isFinite(v))?"—":v>=1000?`$${(v/1000).toFixed(1)}k`:`
 const fmtPct=x=>x<0.001?(x*100).toFixed(3)+"%":(x*100).toFixed(1)+"%";
 const packs4=(p,t)=>Math.ceil(Math.log(1-t)/Math.log(1-p));
 
+// ── SET ARTWORK COLORS ──────────────────────────────────────────────────────
+const SET_COLORS={
+  en_pitch:{g1:"#1a1a1a",g2:"#4a4a4a",accent:"#ff00ff"},
+  en_30th:{g1:"#2d5a3d",g2:"#ff6b35",accent:"#ffd700"},
+  en_delta:{g1:"#1a3a5c",g2:"#ff4444",accent:"#3dd9ff"},
+  en_chaos:{g1:"#3d1a1a",g2:"#ff6b35",accent:"#ff00ff"},
+  en_phantasmal:{g1:"#4a2020",g2:"#ff8c00",accent:"#ff0000"},
+  en_perfect:{g1:"#1a3a4a",g2:"#00ccff",accent:"#ffff00"},
+  en_ascended:{g1:"#2a1a4a",g2:"#aa77ff",accent:"#ffcc00"},
+  en_destined:{g1:"#3a1a2a",g2:"#9b6fe8",accent:"#ff00ff"},
+  en_prismatic:{g1:"#1a3a3a",g2:"#00ffff",accent:"#ff0099"},
+  en_journey:{g1:"#2a3a1a",g2:"#88dd00",accent:"#ffaa00"},
+  en_151:{g1:"#3a2a1a",g2:"#ccaa00",accent:"#ffff00"},
+  en_surging:{g1:"#1a2a4a",g2:"#0088ff",accent:"#ffff00"},
+  en_paldean:{g1:"#2a1a3a",g2:"#ff00ff",accent:"#00ff00"},
+  en_paradox:{g1:"#3a1a1a",g2:"#ff4444",accent:"#00ffff"},
+  en_evolving:{g1:"#1a2a4a",g2:"#0099ff",accent:"#ff00ff"},
+  en_crown:{g1:"#3a1a2a",g2:"#ff00ff",accent:"#ffff00"},
+  en_shining:{g1:"#2a3a1a",g2:"#ffff00",accent:"#ff6600"},
+  en_celebrations:{g1:"#2a1a3a",g2:"#ff00ff",accent:"#00ff00"},
+  en_surging2:{g1:"#1a3a4a",g2:"#0099ff",accent:"#ffff00"},
+  jp_sv4a:{g1:"#1a4a2a",g2:"#00ff00",accent:"#ff00ff"},
+  jp_s8b:{g1:"#3a1a4a",g2:"#aa77ff",accent:"#ffaa00"},
+  jp_s12a:{g1:"#1a2a4a",g2:"#0088ff",accent:"#ffff00"},
+  jp_sv2a:{g1:"#2a3a1a",g2:"#88dd00",accent:"#ff00ff"},
+  jp_m2a:{g1:"#3a2a1a",g2:"#cc8800",accent:"#ff00ff"},
+  jp_m1:{g1:"#1a3a3a",g2:"#00ccff",accent:"#ffaa00"},
+  jp_s4a:{g1:"#2a1a3a",g2:"#ff00ff",accent:"#ffff00"},
+  jp_sm12a:{g1:"#3a1a1a",g2:"#ff0000",accent:"#ffff00"},
+  kr_sv4a:{g1:"#1a2a3a",g2:"#0099ff",accent:"#ff00ff"},
+  kr_sv2a:{g1:"#2a1a3a",g2:"#ff00ff",accent:"#ffff00"},
+  kr_sv8a:{g1:"#3a2a1a",g2:"#cc8800",accent:"#00ff00"},
+  kr_s8b:{g1:"#1a3a2a",g2:"#00ff00",accent:"#ff00ff"},
+};
+
+const genPackSVG=(setId,name)=>{
+  const colors=SET_COLORS[setId]||{g1:"#2a2a4a",g2:"#6666ff",accent:"#ffff00"};
+  const g1e=encodeURIComponent(colors.g1);
+  const g2e=encodeURIComponent(colors.g2);
+  const ace=encodeURIComponent(colors.accent);
+  const ne=encodeURIComponent(name.split(' ')[0]);
+  return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 160'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:${g1e};stop-opacity:1'/%3E%3Cstop offset='100%25' style='stop-color:${g2e};stop-opacity:1'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='120' height='160' fill='url(%23g)'/%3E%3Crect x='8' y='8' width='104' height='144' fill='none' stroke='${ace}' stroke-width='2' rx='4'/%3E%3Ccircle cx='60' cy='40' r='12' fill='${ace}'/%3E%3Ctext x='60' y='130' font-size='9' font-weight='bold' text-anchor='middle' fill='${ace}'%3E${ne}%3C/text%3E%3C/svg%3E`;
+};
+
 // ── PRODUCT CATALOG ────────────────────────────────────────────────────────────
 const PT={
   raw_card: {n:"Raw single (ungraded)",    pk:0, msrp:null,   cat:"Singles"},
@@ -1075,13 +1119,18 @@ If a source has no data for a product, omit that source key.`;
             </div>
 
             {/* Set picker */}
-            <select value={sid} onChange={e=>{setSid(e.target.value);sCi(0);setShopP({});}} style={{marginBottom:10}}>
-              {filtered.map(s=>(
-                <option key={s.id} value={s.id}>
-                  {s.lean==="rip"?"✅ ":s.lean==="coming"?"🔜 ":s.lean==="single"?"🎯 ":"📦 "}{s.n} ({s.code}) {s.yr}
-                </option>
-              ))}
-            </select>
+            <div style={{display:"flex",gap:12,marginBottom:14,alignItems:"flex-start"}}>
+              <div style={{flex:1}}>
+                <select value={sid} onChange={e=>{setSid(e.target.value);sCi(0);setShopP({});}} style={{width:"100%"}}>
+                  {filtered.map(s=>(
+                    <option key={s.id} value={s.id}>
+                      {s.lean==="rip"?"✅ ":s.lean==="coming"?"🔜 ":s.lean==="single"?"🎯 ":"📦 "}{s.n} ({s.code}) {s.yr}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <img src={genPackSVG(set.id,set.n)} alt={set.n} style={{width:60,height:80,borderRadius:6,border:`2px solid ${C.yellow}`,boxShadow:`0 4px 12px rgba(255, 203, 5, 0.3)`,objectFit:"cover"}}/>
+            </div>
 
             {/* Verdict */}
             <div style={{background:vd.bg,border:`1.5px solid ${vd.c}`,borderRadius:12,padding:"14px 16px",marginBottom:12}}>
@@ -1173,7 +1222,7 @@ If a source has no data for a product, omit that source key.`;
         {tab==="market" && (
           <div>
             {/* Controls */}
-            <div style={{display:"flex",gap:8,marginBottom:10}}>
+            <div style={{display:"flex",gap:8,marginBottom:10,alignItems:"center"}}>
               <div style={{flex:2}}>
                 <select value={sid} onChange={e=>{const ns=DB.find(s=>s.id===e.target.value);setSid(e.target.value);setPeriod("All");if(ns){const fp=ns.prods.find(p=>PT[p.t]?.pk>0);if(fp)setMktProd(fp.t);}}}>
                   {DB.filter(s=>s.lang===lang).map(s=><option key={s.id} value={s.id}>{s.n} ({s.code})</option>)}
@@ -1184,6 +1233,7 @@ If a source has no data for a product, omit that source key.`;
                   {set.prods.filter(p=>PT[p.t]?.pk>0).slice(0,5).map(p=><option key={p.t} value={p.t}>{PT[p.t]?.n}</option>)}
                 </select>
               </div>
+              <img src={genPackSVG(set.id,set.n)} alt={set.n} style={{width:50,height:70,borderRadius:4,border:`2px solid ${C.yellow}`,boxShadow:`0 3px 8px rgba(255, 203, 5, 0.25)`}}/>
             </div>
 
             {/* Price hero + time periods */}
