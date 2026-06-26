@@ -99,6 +99,8 @@
     @keyframes drift-sky { from { transform: translateX(0); } to { transform: translateX(-50%); } }
     @keyframes wave-motion { from { background-position: 0 0; } to { background-position: -300px 0; } }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideInRight { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes slideInLeft { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
     @keyframes floatUp { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-60px); } }
     @keyframes bounce { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
     @keyframes screenShake { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(-2px, -2px); } 50% { transform: translate(2px, 2px); } 75% { transform: translate(-2px, 2px); } }
@@ -131,12 +133,14 @@
     .header h1 {
       font-size: 28px;
       font-weight: 700;
-      background: linear-gradient(90deg, #CC0000, #FFCB05);
+      background: linear-gradient(90deg, #CC0000, #FFCB05, #3DBB50);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       margin-bottom: 4px;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-      animation: bounce 1s ease-in-out infinite;
+      text-shadow: 2px 2px 6px rgba(0,0,0,0.7);
+      filter: drop-shadow(0 0 8px rgba(255, 203, 5, 0.3));
+      animation: bounce 2s ease-in-out infinite;
+      letter-spacing: 0.5px;
     }
 
     .header p {
@@ -220,7 +224,7 @@
 
     .tab-content.active {
       display: block;
-      animation: fadeIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      animation: slideInRight 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
     /* PARTICLE SYSTEM */
@@ -682,8 +686,31 @@
     @media (max-width: 768px) {
       .tab-btn { padding: 10px 12px; font-size: 10px; }
       .header h1 { font-size: 20px; }
+      .header { padding: 12px; }
       .stat-grid { grid-template-columns: 1fr; }
       .form-row { grid-template-columns: 1fr; }
+      .content { padding: 16px; }
+      .card-box { padding: 11px; margin-bottom: 8px; }
+      .products-table { margin-bottom: 11px; }
+      table { font-size: 11px; }
+      th, td { padding: 8px; }
+      .stat-box { padding: 14px; }
+      .stat-value { font-size: 22px; }
+      .verdict-box { padding: 14px; margin-bottom: 11px; }
+      .tracker-item { padding: 10px; }
+      .info-box { padding: 10px; font-size: 11px; }
+      button { padding: 9px 14px; font-size: 12px; }
+      input, select { padding: 9px 11px; font-size: 12px; }
+    }
+
+    @media (max-width: 480px) {
+      .header h1 { font-size: 18px; }
+      .header p { font-size: 10px; }
+      .tab-btn { padding: 8px 10px; font-size: 9px; }
+      .stat-value { font-size: 20px; }
+      .card-name { font-size: 12px; }
+      h3 { font-size: 14px; }
+      .content { padding: 12px; }
     }
   </style>
 </head>
