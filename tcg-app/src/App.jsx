@@ -1052,7 +1052,7 @@ If a source has no data for a product, omit that source key.`;
 
   // ── RENDER ────────────────────────────────────────────────────────────────
   return (
-    <div style={{background:C.bg,color:C.text,minHeight:"100vh",fontFamily:"'Inter',system-ui,sans-serif"}}>
+    <div style={{background:"transparent",color:C.text,minHeight:"100vh",fontFamily:"'Inter',system-ui,sans-serif"}}>
       <style>{css}</style>
 
       {/* HEADER */}
