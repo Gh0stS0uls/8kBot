@@ -1083,32 +1083,36 @@ If a source has no data for a product, omit that source key.`;
     <div style={{background:"transparent",color:C.text,minHeight:"100vh",fontFamily:"'Inter',system-ui,sans-serif"}}>
       <style>{css}</style>
 
-      {/* HEADER */}
-      <div style={{background:C.panel,borderBottom:`1px solid ${C.border}`,padding:"12px 16px",display:"flex",justifyContent:"space-between",alignItems:"center",position:"sticky",top:0,zIndex:50}}>
-        <div>
-          <div className="dsp" style={{fontSize:22,fontWeight:700,background:`linear-gradient(90deg,${C.red},${C.yellow})`,WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",lineHeight:1}}>TCG Pokédex</div>
-          <div style={{fontSize:11,color:C.faint}}>Personal TCG investment tool</div>
-        </div>
-        <div style={{textAlign:"right"}}>
-          {tracker.length>0
-            ? <>
-                <div className="mono" style={{fontSize:13,fontWeight:600,color:trackerTotals.now>=trackerTotals.spent?C.green:C.red}}>{fmt$(trackerTotals.now)}</div>
-                <div style={{fontSize:10,color:C.faint}}>{trackerTotals.now>=trackerTotals.spent?"+":""}{Math.round((trackerTotals.now-trackerTotals.spent)/(trackerTotals.spent||1)*100)}% portfolio</div>
-              </>
-            : <>
-                <div className="mono" style={{fontSize:11,color:C.faint}}>No purchases</div>
-                <div style={{fontSize:10,color:C.faint}}>Add in Tracker tab</div>
-              </>
-          }
+      {/* HEADER - POKÉDEX STYLE */}
+      <div style={{background:`linear-gradient(135deg, #cc0000 0%, #ffcc00 50%, #cc0000 100%)`,borderBottom:`4px solid #880000`,padding:"16px",position:"sticky",top:0,zIndex:50,boxShadow:"0 8px 16px rgba(0,0,0,0.4)"}}>
+        <div style={{maxWidth:740,margin:"0 auto"}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:16}}>
+            <div>
+              <div style={{fontSize:32,fontWeight:900,color:"#fff",textShadow:"2px 2px 4px rgba(0,0,0,0.6)",letterSpacing:2,fontFamily:"'Arial Black', sans-serif"}}>POKéDEX</div>
+              <div style={{fontSize:12,color:"#fff",fontWeight:600,marginTop:4,textShadow:"1px 1px 2px rgba(0,0,0,0.5)"}}>TCG INVESTMENT TOOL</div>
+            </div>
+            <div style={{textAlign:"right",background:"rgba(0,0,0,0.2)",borderRadius:8,padding:"10px 14px",border:"2px solid rgba(255,255,255,0.3)"}}>
+              {tracker.length>0
+                ? <>
+                    <div className="mono" style={{fontSize:16,fontWeight:700,color:"#fff"}}>{fmt$(trackerTotals.now)}</div>
+                    <div style={{fontSize:11,color:"#eee",fontWeight:600}}>{trackerTotals.now>=trackerTotals.spent?"+":""}{Math.round((trackerTotals.now-trackerTotals.spent)/(trackerTotals.spent||1)*100)}%</div>
+                  </>
+                : <>
+                    <div className="mono" style={{fontSize:12,color:"#fff",fontWeight:600}}>No portfolio</div>
+                    <div style={{fontSize:10,color:"#ddd"}}>Add in Tracker</div>
+                  </>
+              }
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* TABS */}
-      <div style={{background:C.p2,borderBottom:`1px solid ${C.border}`,display:"flex",overflowX:"auto"}}>
+      {/* TABS - GAME MENU STYLE */}
+      <div style={{background:`linear-gradient(180deg, #1a1a2e 0%, #0f0f1e 100%)`,borderBottom:`3px solid #ffcc00`,display:"flex",overflowX:"auto",gap:2,padding:"8px 14px",boxShadow:"inset 0 2px 8px rgba(0,0,0,0.5)"}}>
         {TABS.map(t=>(
-          <button key={t.id} onClick={()=>setTab(t.id)} style={{minWidth:76,padding:"10px 4px",background:tab===t.id?C.border:"transparent",border:"none",color:tab===t.id?C.yellow:C.dim,fontSize:11,fontWeight:tab===t.id?600:400,display:"flex",flexDirection:"column",alignItems:"center",gap:2,flexShrink:0}}>
-            <span style={{fontSize:15}}>{t.icon}</span>
-            <span>{t.l}</span>
+          <button key={t.id} onClick={()=>setTab(t.id)} style={{flex:`1 0 ${100/TABS.length}%`,padding:"12px 8px",background:tab===t.id?`linear-gradient(135deg, #ffcc00, #ff9900)`:"rgba(255,203,5,0.1)",border:`2px solid ${tab===t.id?"#ffcc00":"#3a3a4a"}`,color:tab===t.id?"#000":"#ffcc00",fontSize:12,fontWeight:tab===t.id?700:600,display:"flex",flexDirection:"column",alignItems:"center",gap:4,flexShrink:0,borderRadius:8,cursor:"pointer",transition:"all 200ms cubic-bezier(0.34, 1.56, 0.64, 1)",boxShadow:tab===t.id?"0 4px 12px rgba(255,204,0,0.4)":"none"}}>
+            <span style={{fontSize:18}}>{t.icon}</span>
+            <span style={{fontSize:10}}>{t.l}</span>
           </button>
         ))}
       </div>
