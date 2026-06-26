@@ -7,12 +7,12 @@ body {
   padding: 0;
   background:
     linear-gradient(180deg,
-      #0f1f4f 0%,
-      #1e3a7a 15%,
-      #3a5fa8 30%,
-      #5b7fbf 50%,
-      #8ba4d8 70%,
-      #c5d4f0 100%);
+      #2d5a3d 0%,
+      #3d7a4d 20%,
+      #5a9a6d 40%,
+      #7ab88d 60%,
+      #9acd9a 80%,
+      #b8ddb8 100%);
   background-attachment: fixed;
   font-family: 'Courier New', monospace;
   position: relative;

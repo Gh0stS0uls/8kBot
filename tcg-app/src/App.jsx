@@ -1156,11 +1156,11 @@ If a source has no data for a product, omit that source key.`;
                 <img src={getPackImg(set.id)} alt={set.n} style={{width:60,height:80,borderRadius:6,border:`2px solid ${C.yellow}`,boxShadow:`0 4px 12px rgba(255, 203, 5, 0.3)`,objectFit:"contain",background:C.panel,padding:2}}/>
               </div>
               {/* Official Set Logo Display */}
-              <div style={{background:`linear-gradient(135deg, ${getSetLogo(set.id,set.n).color}dd, ${getSetLogo(set.id,set.n).accent}44)`,border:`2px solid ${getSetLogo(set.id,set.n).accent}`,borderRadius:10,padding:"16px 18px",textAlign:"center",boxShadow:`0 6px 16px rgba(0,0,0,0.4)`}}>
-                <div style={{fontSize:9.5,color:C.faint,letterSpacing:2,marginBottom:8,textTransform:"uppercase",fontWeight:600}}>Official Set</div>
-                <div style={{fontSize:28,fontWeight:900,color:getSetLogo(set.id,set.n).accent,textShadow:`2px 2px 4px rgba(0,0,0,0.6)`,marginBottom:4,fontFamily:"'Impact', 'Arial Black', sans-serif"}}>{set.n.toUpperCase()}</div>
-                <div style={{fontSize:13,color:C.text,fontWeight:600,marginBottom:6}}>{set.code} • {set.yr}</div>
-                <div style={{fontSize:11,color:C.dim,fontStyle:"italic"}}>{set.lean==="rip"?"Rip it":"Coming soon"}</div>
+              <div style={{background:`linear-gradient(135deg, ${getSetLogo(set.id,set.n).color}cc, ${getSetLogo(set.id,set.n).accent}33)`,border:`2px solid ${getSetLogo(set.id,set.n).accent}`,borderRadius:10,padding:"14px 16px",textAlign:"center",boxShadow:`0 6px 16px rgba(0,0,0,0.4)`}}>
+                <div style={{fontSize:9,color:C.faint,letterSpacing:1.5,marginBottom:6,textTransform:"uppercase",fontWeight:700}}>SET</div>
+                <div style={{fontSize:24,fontWeight:900,color:getSetLogo(set.id,set.n).accent,textShadow:`1px 1px 3px rgba(0,0,0,0.5)`,marginBottom:4,fontFamily:"Arial, Helvetica, sans-serif",letterSpacing:-1}}>{set.n.toUpperCase()}</div>
+                <div style={{fontSize:12,color:C.text,fontWeight:600,marginBottom:4,fontFamily:"'Courier New', monospace"}}>{set.code}</div>
+                <div style={{fontSize:10,color:C.dim,fontFamily:"Arial, sans-serif"}}>{set.yr} • {set.lean==="rip"?"Rip Positive":set.lean==="coming"?"Coming Soon":"Hold Sealed"}</div>
               </div>
             </div>
 
