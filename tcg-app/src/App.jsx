@@ -58,6 +58,34 @@ const getPackImg=(setId)=>{
   return SET_IMAGES[setId]||"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 160'%3E%3Crect width='120' height='160' fill='%23333'/%3E%3C/svg%3E";
 };
 
+// ── SET LOGOS/BRANDING ─────────────────────────────────────────────────────────
+const SET_LOGOS={
+  en_pitch:{color:"#1a1a2e",accent:"#ff6b35"},
+  en_30th:{color:"#2c1810",accent:"#ffd700"},
+  en_delta:{color:"#1a472a",accent:"#ff4444"},
+  en_chaos:{color:"#2a1a3a",accent:"#ff6b9d"},
+  en_phantasmal:{color:"#8b0000",accent:"#ff8c00"},
+  en_perfect:{color:"#1a2a4a",accent:"#00ccff"},
+  en_ascended:{color:"#3a1a2a",accent:"#ffaa00"},
+  en_destined:{color:"#2a3a4a",accent:"#88ccff"},
+  en_prismatic:{color:"#1a1a3a",accent:"#cc66ff"},
+  en_journey:{color:"#2a4a1a",accent:"#88ff44"},
+  en_151:{color:"#ffcc00",accent:"#ff0000"},
+  en_surging:{color:"#1a2a4a",accent:"#ffff00"},
+  en_paldean:{color:"#3a2a1a",accent:"#ff9900"},
+  en_paradox:{color:"#4a1a4a",accent:"#00ff88"},
+  en_evolving:{color:"#1a3a5a",accent:"#00aaff"},
+  en_crown:{color:"#2a1a1a",accent:"#ffcc00"},
+  en_shining:{color:"#1a2a3a",accent:"#88ddff"},
+  en_celebrations:{color:"#8b0000",accent:"#ffd700"},
+  en_surging2:{color:"#1a2a4a",accent:"#ffff00"},
+};
+
+const getSetLogo=(setId,setName)=>{
+  const logo=SET_LOGOS[setId]||{color:"#111",accent:"#ffcb05"};
+  return {...logo,setName};
+};
+
 // ── PRODUCT CATALOG ────────────────────────────────────────────────────────────
 const PT={
   raw_card: {n:"Raw single (ungraded)",    pk:0, msrp:null,   cat:"Singles"},
@@ -1113,18 +1141,27 @@ If a source has no data for a product, omit that source key.`;
               })}
             </div>
 
-            {/* Set picker */}
-            <div style={{display:"flex",gap:12,marginBottom:14,alignItems:"flex-start"}}>
-              <div style={{flex:1}}>
-                <select value={sid} onChange={e=>{setSid(e.target.value);sCi(0);setShopP({});}} style={{width:"100%"}}>
-                  {filtered.map(s=>(
-                    <option key={s.id} value={s.id}>
-                      {s.lean==="rip"?"✅ ":s.lean==="coming"?"🔜 ":s.lean==="single"?"🎯 ":"📦 "}{s.n} ({s.code}) {s.yr}
-                    </option>
-                  ))}
-                </select>
+            {/* Set picker with logo */}
+            <div style={{marginBottom:14}}>
+              <div style={{display:"flex",gap:12,marginBottom:12,alignItems:"flex-start"}}>
+                <div style={{flex:1}}>
+                  <select value={sid} onChange={e=>{setSid(e.target.value);sCi(0);setShopP({});}} style={{width:"100%"}}>
+                    {filtered.map(s=>(
+                      <option key={s.id} value={s.id}>
+                        {s.lean==="rip"?"✅ ":s.lean==="coming"?"🔜 ":s.lean==="single"?"🎯 ":"📦 "}{s.n} ({s.code}) {s.yr}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <img src={getPackImg(set.id)} alt={set.n} style={{width:60,height:80,borderRadius:6,border:`2px solid ${C.yellow}`,boxShadow:`0 4px 12px rgba(255, 203, 5, 0.3)`,objectFit:"contain",background:C.panel,padding:2}}/>
               </div>
-              <img src={getPackImg(set.id)} alt={set.n} style={{width:60,height:80,borderRadius:6,border:`2px solid ${C.yellow}`,boxShadow:`0 4px 12px rgba(255, 203, 5, 0.3)`,objectFit:"contain",background:C.panel,padding:2}}/>
+              {/* Official Set Logo Display */}
+              <div style={{background:`linear-gradient(135deg, ${getSetLogo(set.id,set.n).color}dd, ${getSetLogo(set.id,set.n).accent}44)`,border:`2px solid ${getSetLogo(set.id,set.n).accent}`,borderRadius:10,padding:"16px 18px",textAlign:"center",boxShadow:`0 6px 16px rgba(0,0,0,0.4)`}}>
+                <div style={{fontSize:9.5,color:C.faint,letterSpacing:2,marginBottom:8,textTransform:"uppercase",fontWeight:600}}>Official Set</div>
+                <div style={{fontSize:28,fontWeight:900,color:getSetLogo(set.id,set.n).accent,textShadow:`2px 2px 4px rgba(0,0,0,0.6)`,marginBottom:4,fontFamily:"'Impact', 'Arial Black', sans-serif"}}>{set.n.toUpperCase()}</div>
+                <div style={{fontSize:13,color:C.text,fontWeight:600,marginBottom:6}}>{set.code} • {set.yr}</div>
+                <div style={{fontSize:11,color:C.dim,fontStyle:"italic"}}>{set.lean==="rip"?"Rip it":"Coming soon"}</div>
+              </div>
             </div>
 
             {/* Verdict */}
