@@ -103,6 +103,7 @@
     @keyframes bounce { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
     @keyframes screenShake { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(-2px, -2px); } 50% { transform: translate(2px, 2px); } 75% { transform: translate(-2px, 2px); } }
     @keyframes glow-pulse { 0%, 100% { filter: drop-shadow(0 0 4px currentColor); } 50% { filter: drop-shadow(0 0 12px currentColor); } }
+    @keyframes glow-intense { 0%, 100% { box-shadow: 0 0 12px rgba(255, 203, 5, 0.4), inset 0 0 8px rgba(255, 203, 5, 0.1); } 50% { box-shadow: 0 0 24px rgba(255, 203, 5, 0.6), inset 0 0 12px rgba(255, 203, 5, 0.2); } }
 
     /* MAIN CONTENT */
     .container {
@@ -232,6 +233,20 @@
       will-change: transform, opacity;
     }
 
+    @keyframes confetti-fall {
+      to {
+        transform: translateY(100vh) rotateZ(360deg);
+        opacity: 0;
+      }
+    }
+
+    .confetti {
+      position: fixed;
+      pointer-events: none;
+      z-index: 998;
+      will-change: transform;
+    }
+
     /* CARDS & LAYOUT */
     .card-box {
       background: rgba(17, 17, 17, 0.9);
@@ -350,14 +365,20 @@
       border: 2px solid currentColor;
       background: rgba(255, 203, 5, 0.1);
       color: currentColor;
-      transition: all 0.2s ease;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
       cursor: pointer;
-      will-change: transform;
+      will-change: transform, box-shadow;
+      box-shadow: 0 0 8px rgba(255, 203, 5, 0.3);
     }
 
     .badge:hover {
-      transform: scale(1.1);
-      background: rgba(255, 203, 5, 0.2);
+      transform: scale(1.15);
+      background: rgba(255, 203, 5, 0.25);
+      box-shadow: 0 0 16px rgba(255, 203, 5, 0.6);
+    }
+
+    .badge:active {
+      transform: scale(1.08);
     }
 
     /* BUTTONS */
@@ -485,8 +506,8 @@
       padding: 18px;
       margin-bottom: 14px;
       background: rgba(60, 187, 80, 0.1);
-      animation: fadeIn 0.4s ease-out;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      animation: fadeIn 0.4s ease-out, glow-intense 4s ease-in-out infinite;
+      box-shadow: 0 0 16px rgba(255, 203, 5, 0.4), inset 0 0 8px rgba(255, 203, 5, 0.1);
     }
 
     .verdict-title {
@@ -518,13 +539,13 @@
       text-align: center;
       transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
       will-change: transform;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-      animation: fadeIn 0.4s ease-out;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4), 0 0 12px rgba(255, 203, 5, 0.3);
+      animation: fadeIn 0.4s ease-out, glow-intense 4s ease-in-out infinite;
     }
 
     .stat-box:hover {
       transform: translateY(-4px);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.5), 0 0 16px rgba(255, 203, 5, 0.2);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5), 0 0 24px rgba(255, 203, 5, 0.4);
     }
 
     .stat-label {
@@ -765,6 +786,33 @@
       }
     }
 
+    class ConfettiSystem {
+      static create(count = 50) {
+        const colors = ['#FFCB05', '#3DBB50', '#4A5FD6', '#CC0000', '#FF6B35', '#7B2D8F'];
+        const emojis = ['✨', '⭐', '🎉', '💎', '🎯', '✓'];
+
+        for (let i = 0; i < count; i++) {
+          const confetti = document.createElement('div');
+          confetti.className = 'confetti';
+          confetti.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+          confetti.style.left = Math.random() * window.innerWidth + 'px';
+          confetti.style.top = '-20px';
+          confetti.style.color = colors[Math.floor(Math.random() * colors.length)];
+          confetti.style.fontSize = (8 + Math.random() * 12) + 'px';
+          confetti.style.fontWeight = '700';
+          confetti.style.textShadow = '0 2px 4px rgba(0,0,0,0.5)';
+
+          const duration = 2000 + Math.random() * 1000;
+          const delay = Math.random() * 200;
+          confetti.style.animation = `confetti-fall ${duration}ms linear ${delay}ms forwards`;
+
+          document.body.appendChild(confetti);
+
+          setTimeout(() => confetti.remove(), duration + delay);
+        }
+      }
+    }
+
     function screenShake(intensity = 4, duration = 300) {
       const container = document.querySelector('.container');
       container.style.animation = 'none';
@@ -952,6 +1000,12 @@
         // Feedback
         ParticleSystem.create(window.innerWidth/2, window.innerHeight/2, '✓ ADDED', '#3DBB50', 1000);
         screenShake(3, 200);
+
+        // Celebration for expensive items
+        if(current > 200) {
+          ConfettiSystem.create(40);
+          ParticleSystem.create(window.innerWidth/2, window.innerHeight/4, '🎉 JACKPOT!', '#FFD700', 1200);
+        }
 
         document.getElementById("trackerName").value="";
         document.getElementById("trackerCost").value="";
