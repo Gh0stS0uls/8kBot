@@ -12,6 +12,8 @@
       overflow: hidden;
       background: #000;
       color: #F0EDE4;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
     }
 
     /* ANIMATED BACKGROUND LAYERS */
@@ -41,17 +43,6 @@
       height: 100%;
       animation: drift-sky 40s linear infinite;
     }
-
-    .cloud {
-      position: absolute;
-      opacity: 0.85;
-      filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3));
-    }
-
-    .cloud-1 { top: 10%; left: 5%; width: 120px; height: 60px; }
-    .cloud-2 { top: 25%; left: 45%; width: 100px; height: 50px; }
-    .cloud-3 { top: 5%; left: 70%; width: 140px; height: 70px; }
-    .cloud-4 { top: 30%; left: 15%; width: 90px; height: 45px; }
 
     .water-layer {
       position: absolute;
@@ -101,22 +92,17 @@
       width: 100%;
       height: 20px;
       bottom: 0;
-      background: repeating-linear-gradient(
-        90deg,
-        #558B2F 0px,
-        #558B2F 2px,
-        #7CB342 2px,
-        #7CB342 4px,
-        #558B2F 4px,
-        #558B2F 6px,
-        transparent 6px,
-        transparent 20px
-      );
+      background: repeating-linear-gradient(90deg, #558B2F 0px, #558B2F 2px, #7CB342 2px, #7CB342 4px, #558B2F 4px, #558B2F 6px, transparent 6px, transparent 20px);
       opacity: 0.7;
     }
 
     @keyframes drift-sky { from { transform: translateX(0); } to { transform: translateX(-50%); } }
     @keyframes wave-motion { from { background-position: 0 0; } to { background-position: -300px 0; } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes floatUp { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-60px); } }
+    @keyframes bounce { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+    @keyframes screenShake { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(-2px, -2px); } 50% { transform: translate(2px, 2px); } 75% { transform: translate(-2px, 2px); } }
+    @keyframes glow-pulse { 0%, 100% { filter: drop-shadow(0 0 4px currentColor); } 50% { filter: drop-shadow(0 0 12px currentColor); } }
 
     /* MAIN CONTENT */
     .container {
@@ -129,12 +115,16 @@
       overflow: hidden;
     }
 
+    .container.shake {
+      animation: screenShake 0.3s ease-in-out;
+    }
+
     .header {
       background: rgba(17, 17, 17, 0.95);
-      border-bottom: 2px solid currentColor;
+      border-bottom: 3px solid currentColor;
       padding: 16px;
       flex-shrink: 0;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.6);
     }
 
     .header h1 {
@@ -145,22 +135,24 @@
       -webkit-text-fill-color: transparent;
       margin-bottom: 4px;
       text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+      animation: bounce 1s ease-in-out infinite;
     }
 
     .header p {
       font-size: 12px;
       color: #888;
+      animation: fadeIn 0.6s ease-out;
     }
 
     .tabs {
       background: rgba(28, 28, 28, 0.95);
-      border-bottom: 2px solid currentColor;
+      border-bottom: 3px solid currentColor;
       display: flex;
       gap: 0;
       overflow-x: auto;
       padding: 0;
       flex-shrink: 0;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.5);
     }
 
     .tab-btn {
@@ -174,23 +166,11 @@
       cursor: pointer;
       white-space: nowrap;
       border-radius: 0;
-      transition: all 0.2s ease;
+      transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
       position: relative;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-    }
-
-    .tab-btn:hover {
-      background: rgba(255, 203, 5, 0.1);
-      color: #FFCB05;
-      transform: translateY(-2px);
-    }
-
-    .tab-btn.active {
-      background: rgba(255, 203, 5, 0.2);
-      color: #FFCB05;
-      border-bottom: 3px solid currentColor;
-      font-weight: 700;
+      will-change: transform, color;
     }
 
     .tab-btn::before {
@@ -198,10 +178,30 @@
       position: absolute;
       bottom: 0;
       left: 0;
-      width: 0;
+      width: 0%;
       height: 3px;
       background: currentColor;
-      transition: width 0.3s ease;
+      transition: width 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .tab-btn:hover {
+      background: rgba(255, 203, 5, 0.1);
+      color: #FFCB05;
+      transform: translateY(-3px);
+    }
+
+    .tab-btn:active {
+      transform: translateY(-1px) scale(0.98);
+    }
+
+    .tab-btn.active {
+      background: rgba(255, 203, 5, 0.2);
+      color: #FFCB05;
+      font-weight: 700;
+    }
+
+    .tab-btn.active::before {
+      width: 100%;
     }
 
     .content {
@@ -219,55 +219,90 @@
 
     .tab-content.active {
       display: block;
-      animation: fadeIn 0.3s ease-out;
+      animation: fadeIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+    /* PARTICLE SYSTEM */
+    .particle {
+      position: fixed;
+      pointer-events: none;
+      font-weight: 700;
+      font-size: 14px;
+      z-index: 999;
+      will-change: transform, opacity;
     }
 
     /* CARDS & LAYOUT */
     .card-box {
       background: rgba(17, 17, 17, 0.9);
       border: 2px solid currentColor;
-      border-radius: 8px;
-      padding: 12px;
-      margin-bottom: 8px;
-      transition: all 0.2s ease;
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 10px;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
       cursor: pointer;
+      will-change: transform, box-shadow;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-box::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 203, 5, 0.2), transparent);
+      transition: left 0.5s ease;
     }
 
     .card-box:hover {
       background: rgba(28, 28, 28, 0.95);
-      transform: translateY(-3px);
-      box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5), 0 0 20px rgba(255, 203, 5, 0.2);
+    }
+
+    .card-box:hover::before {
+      left: 100%;
+    }
+
+    .card-box:active {
+      transform: translateY(-2px) scale(1.01);
     }
 
     .card-name {
       font-weight: 700;
       font-size: 13px;
       margin-bottom: 4px;
+      position: relative;
+      z-index: 1;
     }
 
     .card-stats {
       font-size: 11px;
       color: #888;
       margin-bottom: 4px;
+      position: relative;
+      z-index: 1;
     }
 
     .card-value {
       font-size: 12px;
       font-weight: 600;
       color: #FFCB05;
+      position: relative;
+      z-index: 1;
     }
 
     .products-table {
       background: rgba(17, 17, 17, 0.9);
       border: 2px solid currentColor;
-      border-radius: 8px;
+      border-radius: 12px;
       overflow: hidden;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      animation: fadeIn 0.4s ease-out;
     }
 
     table {
@@ -277,7 +312,7 @@
     }
 
     th {
-      padding: 10px;
+      padding: 11px;
       text-align: left;
       color: #888;
       font-weight: 700;
@@ -289,27 +324,40 @@
     }
 
     td {
-      padding: 10px;
+      padding: 11px;
       border-bottom: 1px solid rgba(255, 203, 5, 0.1);
+      transition: all 0.15s ease;
     }
 
     tbody tr:nth-child(even) { background: rgba(28, 28, 28, 0.4); }
     tbody tr:nth-child(odd) { background: rgba(10, 10, 10, 0.4); }
 
     tbody tr:hover {
-      background: rgba(255, 203, 5, 0.1);
+      background: rgba(255, 203, 5, 0.15);
       transform: scale(1.01);
+    }
+
+    tbody tr:hover td {
+      color: #FFCB05;
     }
 
     .badge {
       display: inline-block;
-      padding: 4px 10px;
-      border-radius: 4px;
+      padding: 5px 11px;
+      border-radius: 6px;
       font-size: 10px;
       font-weight: 700;
       border: 2px solid currentColor;
       background: rgba(255, 203, 5, 0.1);
       color: currentColor;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      will-change: transform;
+    }
+
+    .badge:hover {
+      transform: scale(1.1);
+      background: rgba(255, 203, 5, 0.2);
     }
 
     /* BUTTONS */
@@ -317,28 +365,47 @@
       background: currentColor;
       color: #0A0A0A;
       border: none;
-      border-radius: 6px;
-      padding: 10px 16px;
+      border-radius: 8px;
+      padding: 11px 18px;
       cursor: pointer;
       font-weight: 700;
       font-size: 13px;
-      transition: all 0.2s ease;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
       position: relative;
       overflow: hidden;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      will-change: transform, box-shadow;
+    }
+
+    button::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
     }
 
     button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 12px rgba(0,0,0,0.4);
-      filter: brightness(1.1);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.5), 0 0 20px rgba(255, 203, 5, 0.3);
+      filter: brightness(1.15);
     }
 
     button:active {
-      transform: translateY(0);
-      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      transform: translateY(-1px) scale(0.96);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    button:active::before {
+      width: 300px;
+      height: 300px;
     }
 
     /* INPUTS */
@@ -346,21 +413,26 @@
       background: rgba(28, 28, 28, 0.9);
       border: 2px solid currentColor;
       color: #F0EDE4;
-      border-radius: 6px;
-      padding: 10px 12px;
+      border-radius: 8px;
+      padding: 11px 13px;
       width: 100%;
       font-size: 13px;
-      margin-bottom: 10px;
-      transition: all 0.2s ease;
+      margin-bottom: 11px;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
       font-weight: 500;
+      will-change: transform, border-color, box-shadow;
     }
 
     input:focus, select:focus {
       outline: none;
       border-color: #FFCB05;
       background: rgba(28, 28, 28, 0.95);
-      box-shadow: 0 0 12px rgba(255, 203, 5, 0.3);
+      box-shadow: 0 0 16px rgba(255, 203, 5, 0.4), inset 0 0 8px rgba(255, 203, 5, 0.1);
       transform: scale(1.02);
+    }
+
+    input::placeholder {
+      color: #555;
     }
 
     /* LANGUAGE & SET BUTTONS */
@@ -368,6 +440,7 @@
       display: flex;
       gap: 8px;
       margin-bottom: 12px;
+      animation: fadeIn 0.4s ease-out;
     }
 
     .lang-btn {
@@ -376,64 +449,82 @@
       background: rgba(28, 28, 28, 0.8);
       border: 2px solid rgba(255, 203, 5, 0.3);
       color: #888;
-      border-radius: 6px;
+      border-radius: 8px;
       cursor: pointer;
       font-weight: 600;
       font-size: 12px;
-      transition: all 0.2s ease;
+      transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      will-change: transform, border-color;
     }
 
     .lang-btn:hover {
       border-color: #FFCB05;
       color: #FFCB05;
       transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(255, 203, 5, 0.2);
+    }
+
+    .lang-btn:active {
+      transform: translateY(0) scale(0.98);
     }
 
     .lang-btn.active {
       background: rgba(255, 203, 5, 0.2);
       border-color: #FFCB05;
       color: #FFCB05;
-      box-shadow: 0 4px 12px rgba(255, 203, 5, 0.2);
+      box-shadow: 0 4px 16px rgba(255, 203, 5, 0.3);
+      transform: scale(1.05);
     }
 
     /* VERDICT BOX */
     .verdict-box {
       border: 2px solid currentColor;
-      border-radius: 8px;
-      padding: 16px;
-      margin-bottom: 12px;
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 14px;
       background: rgba(60, 187, 80, 0.1);
+      animation: fadeIn 0.4s ease-out;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     }
 
     .verdict-title {
       font-size: 18px;
       font-weight: 700;
       color: currentColor;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
     }
 
     .verdict-note {
       font-size: 12px;
       color: #888;
-      line-height: 1.5;
+      line-height: 1.6;
     }
 
     /* TRACKER */
     .stat-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 16px;
+      gap: 14px;
+      margin-bottom: 18px;
     }
 
     .stat-box {
       background: rgba(17, 17, 17, 0.9);
       border: 2px solid currentColor;
-      border-radius: 8px;
-      padding: 16px;
+      border-radius: 12px;
+      padding: 18px;
       text-align: center;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      will-change: transform;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    .stat-box:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.5), 0 0 16px rgba(255, 203, 5, 0.2);
     }
 
     .stat-label {
@@ -441,30 +532,35 @@
       color: #888;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
     }
 
     .stat-value {
-      font-size: 24px;
+      font-size: 28px;
       font-weight: 700;
       color: #FFCB05;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 1px;
     }
 
     .tracker-item {
       background: rgba(17, 17, 17, 0.9);
       border: 2px solid currentColor;
-      border-radius: 8px;
-      padding: 12px;
-      margin-bottom: 8px;
+      border-radius: 12px;
+      padding: 13px;
+      margin-bottom: 10px;
       display: flex;
       align-items: center;
       gap: 12px;
-      transition: all 0.2s ease;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      will-change: transform, box-shadow;
+      animation: fadeIn 0.3s ease-out;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     }
 
     .tracker-item:hover {
-      transform: translateX(4px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      transform: translateX(4px) translateY(-2px);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.4), 0 0 16px rgba(255, 203, 5, 0.2);
     }
 
     .tracker-item-info { flex: 1; }
@@ -475,64 +571,86 @@
       background: transparent;
       border: 2px solid rgba(255, 203, 5, 0.3);
       color: #888;
-      border-radius: 6px;
+      border-radius: 8px;
       padding: 6px 10px;
       cursor: pointer;
       font-size: 12px;
       transition: all 0.2s ease;
+      will-change: transform, border-color;
     }
 
     .delete-btn:hover {
       border-color: #CC0000;
       color: #CC0000;
       background: rgba(204, 0, 0, 0.1);
+      transform: scale(1.1);
+    }
+
+    .delete-btn:active {
+      transform: scale(0.95);
     }
 
     /* EMPTY STATE */
     .empty-state {
       background: rgba(17, 17, 17, 0.9);
       border: 2px dashed rgba(255, 203, 5, 0.3);
-      border-radius: 8px;
-      padding: 32px;
+      border-radius: 12px;
+      padding: 40px;
       text-align: center;
       color: #888;
       font-size: 13px;
+      animation: fadeIn 0.4s ease-out;
     }
 
     h3 {
       color: currentColor;
-      margin: 16px 0 12px;
+      margin: 18px 0 14px;
       font-size: 16px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      animation: fadeIn 0.5s ease-out;
     }
 
     .info-box {
       background: rgba(17, 17, 17, 0.9);
       border: 2px solid rgba(255, 203, 5, 0.3);
-      border-radius: 8px;
-      padding: 12px;
-      margin-bottom: 12px;
+      border-radius: 12px;
+      padding: 13px;
+      margin-bottom: 14px;
       font-size: 12px;
       color: #888;
+      animation: fadeIn 0.4s ease-out;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     }
 
     /* FORM */
     .form-group { margin-bottom: 12px; }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
 
+    /* CATEGORY LABEL */
+    .category-label {
+      font-size: 10px;
+      color: #555;
+      margin-bottom: 8px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 14px;
+    }
+
     /* SCROLLBAR STYLING */
     .content::-webkit-scrollbar {
-      width: 8px;
+      width: 10px;
     }
 
     .content::-webkit-scrollbar-track {
-      background: rgba(0, 0, 0, 0.3);
+      background: rgba(0, 0, 0, 0.4);
     }
 
     .content::-webkit-scrollbar-thumb {
-      background: currentColor;
-      border-radius: 4px;
+      background: rgba(255, 203, 5, 0.4);
+      border-radius: 5px;
+      transition: background 0.2s ease;
     }
 
     .content::-webkit-scrollbar-thumb:hover {
@@ -594,17 +712,17 @@
       <div class="tab-content" id="tab-tracker">
         <div class="stat-grid">
           <div class="stat-box"><div class="stat-label">Spent</div><div class="stat-value" id="trackerSpent">$0.00</div></div>
-          <div class="stat-box"><div class="stat-label">Value Now</div><div class="stat-value" id="trackerValue" style="color: #3DBB50;">$0.00</div></div>
+          <div class="stat-box"><div class="stat-label">Value Now</div><div class="stat-value" id="trackerValue">$0.00</div></div>
         </div>
         <div id="trackerList"></div>
-        <div style="background: rgba(17, 17, 17, 0.9); border: 2px solid currentColor; border-radius: 8px; padding: 16px; margin-top: 16px;">
+        <div style="background: rgba(17, 17, 17, 0.9); border: 2px solid currentColor; border-radius: 12px; padding: 18px; margin-top: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
           <h3>Add Purchase</h3>
           <div class="form-group"><input type="text" id="trackerName" placeholder="What (e.g. Evolving Skies ETB)"></div>
           <div class="form-row">
             <input type="number" id="trackerCost" placeholder="Paid $" step="0.01" min="0">
             <input type="number" id="trackerValue2" placeholder="Worth $" step="0.01" min="0">
           </div>
-          <button onclick="addTracker()">+ Add Purchase</button>
+          <button onclick="addTrackerWithFeedback()">+ Add Purchase</button>
         </div>
       </div>
 
@@ -613,7 +731,75 @@
   </div>
 
   <script>
-    // SET COLOR PALETTES - based on official TCG logos
+    // ============ ANIMATION & PARTICLE SYSTEM ============
+    class ParticleSystem {
+      static particles = [];
+
+      static create(x, y, text, color = '#FFCB05', duration = 1500) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.textContent = text;
+        particle.style.left = x + 'px';
+        particle.style.top = y + 'px';
+        particle.style.color = color;
+        particle.style.textShadow = `0 2px 4px rgba(0,0,0,0.5)`;
+        document.body.appendChild(particle);
+
+        let progress = 0;
+        const animate = () => {
+          progress += 16;
+          const t = progress / duration;
+          if (t >= 1) {
+            particle.remove();
+            ParticleSystem.particles = ParticleSystem.particles.filter(p => p !== particle);
+            return;
+          }
+          const y_offset = -60 * t;
+          const opacity = 1 - (t * t);
+          particle.style.transform = `translateY(${y_offset}px)`;
+          particle.style.opacity = opacity;
+          requestAnimationFrame(animate);
+        };
+        requestAnimationFrame(animate);
+        ParticleSystem.particles.push(particle);
+      }
+    }
+
+    function screenShake(intensity = 4, duration = 300) {
+      const container = document.querySelector('.container');
+      container.style.animation = 'none';
+      void container.offsetWidth; // Trigger reflow
+      container.style.animation = `screenShake 0.3s ease-in-out`;
+      setTimeout(() => {
+        container.style.animation = 'none';
+      }, duration);
+    }
+
+    function animateNumber(element, target, duration = 600) {
+      const startValue = parseFloat(element.textContent.replace('$', '')) || 0;
+      const startTime = performance.now();
+
+      const animate = (currentTime) => {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const easeOut = 1 - Math.pow(1 - progress, 3);
+        const current = startValue + (target - startValue) * easeOut;
+
+        if (element.id === 'trackerSpent' || element.id === 'trackerValue') {
+          element.textContent = '$' + current.toFixed(2);
+        } else {
+          element.textContent = '$' + current.toFixed(2);
+        }
+
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        }
+      };
+
+      requestAnimationFrame(animate);
+    }
+
+    // ============ THEME SYSTEM ============
     const SET_COLORS = {
       en_chaos: { primary: '#CC0000', secondary: '#FF6B6B', bg: 'rgba(204, 0, 0, 0.1)' },
       en_phantasmal: { primary: '#FF6B35', secondary: '#FFA500', bg: 'rgba(255, 107, 53, 0.1)' },
@@ -635,34 +821,23 @@
       kr_sv10: { primary: '#7C2D12', secondary: '#DC2626', bg: 'rgba(124, 45, 18, 0.1)' }
     };
 
-    const PT={loose:{n:"Loose pack",cat:"Packs"},b1:{n:"1-pack",cat:"Packs"},b3:{n:"3-pack",cat:"Packs"},mini_tin:{n:"Mini tin (2p)",cat:"Tins"},bundle:{n:"Bundle (6p)",cat:"Bundles"},etb:{n:"ETB (9p)",cat:"Bundles"},pcetb:{n:"PC ETB (11p)",cat:"Bundles"},box:{n:"Booster box (36p)",cat:"Boxes"},upc:{n:"Ultra Premium (16p+)",cat:"Collections"},jp_pack:{n:"JP pack",cat:"Japanese"},jp_box:{n:"JP box (30p)",cat:"Japanese"},kr_pack:{n:"KR pack",cat:"Korean"},kr_box:{n:"KR box (30p)",cat:"Korean"}};
-    const GRADERS=[{n:"PSA",cost:80,days:"40-50d",m10:1.00,m9:0.38},{n:"TAG",cost:149,days:"15-30d",m10:0.80,m9:0.34},{n:"CGC",cost:16,days:"60-100d",m10:0.78,m9:0.33}];
-    const DB=[{id:"en_chaos",lang:"en",n:"Chaos Rising",code:"ME04",era:"mega",lean:"rip",note:"Greninja ex SIR $350. Best rip EV.",prods:[{t:"loose",market:6.50,v:"skip"},{t:"b3",market:14,v:"ok"},{t:"bundle",market:30,v:"ok"},{t:"etb",market:58,v:"ok"},{t:"box",market:235,v:"ok"}],cards:[{n:"Mega Greninja ex SIR",pull:1/400,raw:350,p10:1000},{n:"Any SIR (avg)",pull:1/101,raw:45,p10:135}]},{id:"en_phantasmal",lang:"en",n:"Phantasmal Flames",code:"ME02",era:"mega",lean:"rip",note:"Charizard X SIR $780. Guaranteed ex every pack.",prods:[{t:"loose",market:5.50,v:"ok"},{t:"b3",market:14,v:"ok"},{t:"bundle",market:28,v:"buy"},{t:"etb",market:52,v:"buy"},{t:"box",market:148,v:"rip"}],cards:[{n:"Mega Charizard X SIR",pull:1/400,raw:780,p10:2000},{n:"Any SIR (avg)",pull:1/80,raw:80,p10:240}]},{id:"en_perfect",lang:"en",n:"Perfect Order",code:"ME03",era:"mega",lean:"hold",note:"Negative rip EV. Sealed up 18-35% since launch.",prods:[{t:"loose",market:5,v:"skip"},{t:"bundle",market:28,v:"hold"},{t:"etb",market:55,v:"hold"},{t:"pcetb",market:65,v:"hold"},{t:"box",market:150,v:"hold"}],cards:[{n:"Any SIR (avg)",pull:1/81,raw:50,p10:150}]},{id:"en_destined",lang:"en",n:"Destined Rivals",code:"SV10",era:"sv",lean:"single",note:"Mewtwo SIR $500. Buy raw single, not sealed.",prods:[{t:"loose",market:15.70,v:"avoid"},{t:"bundle",market:90,v:"hold"},{t:"etb",market:140,v:"hold"},{t:"box",market:565,v:"hold"}],cards:[{n:"Rocket's Mewtwo ex SIR",pull:1/376,raw:500,p10:1150}]},{id:"en_prismatic",lang:"en",n:"Prismatic Evolutions",code:"SV8.5",era:"sv",lean:"hold",note:"Umbreon SIR $1,250. ETBs 2.8× MSRP and climbing.",prods:[{t:"loose",market:12,v:"avoid"},{t:"mini_tin",market:28,v:"hold"},{t:"bundle",market:75,v:"hold"},{t:"etb",market:140,v:"hold"},{t:"pcetb",market:180,v:"hold"}],cards:[{n:"Umbreon ex SIR",pull:1/45,raw:1250,p10:4500},{n:"Sylveon ex SIR",pull:1/45,raw:200,p10:700}]},{id:"en_151",lang:"en",n:"Pokémon 151",code:"SV3.5",era:"sv",lean:"hold",note:"ETBs 4× MSRP. 30th anniversary demand. Strong hold.",prods:[{t:"bundle",market:120,v:"hold"},{t:"etb",market:220,v:"hold"},{t:"upc",market:650,v:"hold"}],cards:[{n:"Charizard ex SIR",pull:1/288,raw:400,p10:1500},{n:"Venusaur ex SIR",pull:1/288,raw:150,p10:580}]},{id:"en_surging",lang:"en",n:"Surging Sparks",code:"SV8",era:"sv",lean:"hold",note:"Pikachu ex SIR $1,200. Don't rip at current box price.",prods:[{t:"bundle",market:45,v:"hold"},{t:"etb",market:90,v:"hold"},{t:"box",market:300,v:"hold"}],cards:[{n:"Pikachu ex SIR",pull:1/400,raw:1200,p10:3000}]},{id:"en_evolving",lang:"en",n:"Evolving Skies",code:"SWSH7",era:"swsh",lean:"hold",note:"Blue-chip. Moonbreon $900. Box $200 in 2021 → $2,600 now.",prods:[{t:"etb",market:310,v:"hold"},{t:"box",market:2600,v:"hold"}],cards:[{n:"Umbreon VMAX Alt Art",pull:1/48,raw:900,p10:1500},{n:"Rayquaza VMAX Alt Art",pull:1/48,raw:350,p10:500}]},{id:"en_crown",lang:"en",n:"Crown Zenith",code:"SWSH12.5",era:"swsh",lean:"hold",note:"ETB-only. Giratina VSTAR Alt Art. $210-250/ETB. Strong hold.",prods:[{t:"etb",market:225,v:"hold"},{t:"pcetb",market:250,v:"hold"}],cards:[{n:"Giratina VSTAR Alt Art",pull:1/24,raw:90,p10:240}]},{id:"en_shining",lang:"en",n:"Shining Fates",code:"SWSH4.5",era:"swsh",lean:"hold",note:"Out of print. No booster box. Charizard VMAX SIR. Strong hold.",prods:[{t:"mini_tin",market:45,v:"hold"},{t:"etb",market:180,v:"hold"},{t:"box",market:450,v:"hold"}],cards:[{n:"Charizard VMAX SIR",pull:1/50,raw:220,p10:600}]},{id:"en_base",lang:"en",n:"Base Set (1st Ed.)",code:"BS1E",era:"vintage",lean:"always-hold",note:"1st Ed Charizard PSA 10 = $300k+. Generational asset. NEVER SELL.",prods:[{t:"loose",market:350,v:"hold"},{t:"box",market:42000,v:"hold"}]},{id:"jp_m4",lang:"jp",n:"Ninja Spinner (M4)",code:"M4",era:"mega",lean:"rip",note:"JP Chaos equiv. Last set at ¥180/pack. Strong buy before price increase.",prods:[{t:"jp_pack",market:4,v:"buy"},{t:"jp_box",market:95,v:"ok"}]},{id:"jp_m2",lang:"jp",n:"Inferno X (M2)",code:"M2",era:"mega",lean:"rip",note:"JP Phantasmal equiv. Box near reasonable price.",prods:[{t:"jp_pack",market:5,v:"ok"},{t:"jp_box",market:100,v:"ok"}]},{id:"jp_sv11w",lang:"jp",n:"White Flare (JP)",code:"SV11W",era:"sv",lean:"rip",note:"Box ~$80. Reasonable for JP ripping.",prods:[{t:"jp_pack",market:4,v:"ok"},{t:"jp_box",market:80,v:"ok"}]},{id:"jp_sv2a",lang:"jp",n:"Pokémon 151 (JP)",code:"SV2a",era:"sv",lean:"hold",note:"Most valuable modern JP set. SAR 1-in-6 boxes. Box $350+. Never rip.",prods:[{t:"jp_pack",market:18,v:"avoid"},{t:"jp_box",market:350,v:"hold"}]},{id:"jp_s8b",lang:"jp",n:"VMAX Climax HC",code:"S8b",era:"swsh",lean:"hold",note:"JP Evolving Skies era. Most popular SWSH JP. Box $400+. Hold.",prods:[{t:"jp_box",market:400,v:"hold"}]},{id:"kr_sv11b",lang:"kr",n:"Black Bolt (KR)",code:"SV11B",era:"sv",lean:"rip",note:"Box ~$45. Reasonable KR rip.",prods:[{t:"kr_pack",market:2,v:"ok"},{t:"kr_box",market:45,v:"ok"}]},{id:"kr_sv10",lang:"kr",n:"Glory of Team Rocket",code:"SV10",era:"sv",lean:"rip",note:"KR Destined Rivals. Box $37. KR singles thinner US market.",prods:[{t:"kr_pack",market:1.50,v:"ok"},{t:"kr_box",market:37,v:"ok"}]}];
-    const PVD={rip:{l:"RIP IT",c:"#3DBB50"},buy:{l:"BUY",c:"#3DBB50"},ok:{l:"OK",c:"#FFCB05"},skip:{l:"SKIP",c:"#F08030"},hold:{l:"HOLD",c:"#4A5FD6"},avoid:{l:"AVOID",c:"#CC0000"}};
-
-    let state={lang:"en",sid:"en_chaos",tracker:JSON.parse(localStorage.getItem("tcg_tracker")||"[]")};
-
     function applyTheme() {
       const colors = SET_COLORS[state.sid] || SET_COLORS.en_chaos;
-      document.documentElement.style.setProperty('--color-primary', colors.primary);
-      document.documentElement.style.setProperty('--color-secondary', colors.secondary);
-      const root = document.documentElement;
-      root.style.setProperty('--primary', colors.primary);
-      root.style.setProperty('--secondary', colors.secondary);
-
-      document.querySelectorAll('*').forEach(el => {
-        el.style.setProperty('color', 'inherit', 'important');
-      });
-
-      const style = document.createElement('style');
-      style.textContent = `:root { --primary: ${colors.primary}; --secondary: ${colors.secondary}; } * { --color: ${colors.primary}; } .verdict-box { border-color: ${colors.primary}; background: ${colors.bg}; }`;
       if (document.head.querySelector('style[data-theme]')) {
         document.head.querySelector('style[data-theme]').remove();
       }
+      const style = document.createElement('style');
       style.setAttribute('data-theme', '1');
+      style.textContent = `:root { --primary: ${colors.primary}; } :root { --color: ${colors.primary}; } :root { --bg: ${colors.bg}; } * { --current-color: ${colors.primary}; } .verdict-box { border-color: ${colors.primary} !important; background: ${colors.bg} !important; }`;
       document.head.appendChild(style);
+
+      const root = document.documentElement;
+      for (const el of document.querySelectorAll('[style*="color"]')) {
+        el.style.setProperty('--current', colors.primary);
+      }
     }
 
+    // ============ CLOUD GENERATION ============
     function generateClouds() {
       const cloudContainer = document.getElementById('cloudContainer');
       const cloudSVG = `<svg width="100%" height="100%" viewBox="0 0 1200 100" preserveAspectRatio="none" style="position: absolute; top: 0; left: 0;">
@@ -682,6 +857,15 @@
       cloudContainer.innerHTML = cloudSVG + cloudSVG;
     }
 
+    // ============ DATA & STATE ============
+    const PT={loose:{n:"Loose pack",cat:"Packs"},b1:{n:"1-pack",cat:"Packs"},b3:{n:"3-pack",cat:"Packs"},mini_tin:{n:"Mini tin (2p)",cat:"Tins"},bundle:{n:"Bundle (6p)",cat:"Bundles"},etb:{n:"ETB (9p)",cat:"Bundles"},pcetb:{n:"PC ETB (11p)",cat:"Bundles"},box:{n:"Booster box (36p)",cat:"Boxes"},upc:{n:"Ultra Premium (16p+)",cat:"Collections"},jp_pack:{n:"JP pack",cat:"Japanese"},jp_box:{n:"JP box (30p)",cat:"Japanese"},kr_pack:{n:"KR pack",cat:"Korean"},kr_box:{n:"KR box (30p)",cat:"Korean"}};
+    const GRADERS=[{n:"PSA",cost:80,days:"40-50d",m10:1.00,m9:0.38},{n:"TAG",cost:149,days:"15-30d",m10:0.80,m9:0.34},{n:"CGC",cost:16,days:"60-100d",m10:0.78,m9:0.33}];
+    const DB=[{id:"en_chaos",lang:"en",n:"Chaos Rising",code:"ME04",era:"mega",lean:"rip",note:"Greninja ex SIR $350. Best rip EV.",prods:[{t:"loose",market:6.50,v:"skip"},{t:"b3",market:14,v:"ok"},{t:"bundle",market:30,v:"ok"},{t:"etb",market:58,v:"ok"},{t:"box",market:235,v:"ok"}],cards:[{n:"Mega Greninja ex SIR",pull:1/400,raw:350,p10:1000},{n:"Any SIR (avg)",pull:1/101,raw:45,p10:135}]},{id:"en_phantasmal",lang:"en",n:"Phantasmal Flames",code:"ME02",era:"mega",lean:"rip",note:"Charizard X SIR $780. Guaranteed ex every pack.",prods:[{t:"loose",market:5.50,v:"ok"},{t:"b3",market:14,v:"ok"},{t:"bundle",market:28,v:"buy"},{t:"etb",market:52,v:"buy"},{t:"box",market:148,v:"rip"}],cards:[{n:"Mega Charizard X SIR",pull:1/400,raw:780,p10:2000},{n:"Any SIR (avg)",pull:1/80,raw:80,p10:240}]},{id:"en_perfect",lang:"en",n:"Perfect Order",code:"ME03",era:"mega",lean:"hold",note:"Negative rip EV. Sealed up 18-35% since launch.",prods:[{t:"loose",market:5,v:"skip"},{t:"bundle",market:28,v:"hold"},{t:"etb",market:55,v:"hold"},{t:"pcetb",market:65,v:"hold"},{t:"box",market:150,v:"hold"}],cards:[{n:"Any SIR (avg)",pull:1/81,raw:50,p10:150}]},{id:"en_destined",lang:"en",n:"Destined Rivals",code:"SV10",era:"sv",lean:"single",note:"Mewtwo SIR $500. Buy raw single, not sealed.",prods:[{t:"loose",market:15.70,v:"avoid"},{t:"bundle",market:90,v:"hold"},{t:"etb",market:140,v:"hold"},{t:"box",market:565,v:"hold"}],cards:[{n:"Rocket's Mewtwo ex SIR",pull:1/376,raw:500,p10:1150}]},{id:"en_prismatic",lang:"en",n:"Prismatic Evolutions",code:"SV8.5",era:"sv",lean:"hold",note:"Umbreon SIR $1,250. ETBs 2.8× MSRP and climbing.",prods:[{t:"loose",market:12,v:"avoid"},{t:"mini_tin",market:28,v:"hold"},{t:"bundle",market:75,v:"hold"},{t:"etb",market:140,v:"hold"},{t:"pcetb",market:180,v:"hold"}],cards:[{n:"Umbreon ex SIR",pull:1/45,raw:1250,p10:4500},{n:"Sylveon ex SIR",pull:1/45,raw:200,p10:700}]},{id:"en_151",lang:"en",n:"Pokémon 151",code:"SV3.5",era:"sv",lean:"hold",note:"ETBs 4× MSRP. 30th anniversary demand. Strong hold.",prods:[{t:"bundle",market:120,v:"hold"},{t:"etb",market:220,v:"hold"},{t:"upc",market:650,v:"hold"}],cards:[{n:"Charizard ex SIR",pull:1/288,raw:400,p10:1500},{n:"Venusaur ex SIR",pull:1/288,raw:150,p10:580}]},{id:"en_surging",lang:"en",n:"Surging Sparks",code:"SV8",era:"sv",lean:"hold",note:"Pikachu ex SIR $1,200. Don't rip at current box price.",prods:[{t:"bundle",market:45,v:"hold"},{t:"etb",market:90,v:"hold"},{t:"box",market:300,v:"hold"}],cards:[{n:"Pikachu ex SIR",pull:1/400,raw:1200,p10:3000}]},{id:"en_evolving",lang:"en",n:"Evolving Skies",code:"SWSH7",era:"swsh",lean:"hold",note:"Blue-chip. Moonbreon $900. Box $200 in 2021 → $2,600 now.",prods:[{t:"etb",market:310,v:"hold"},{t:"box",market:2600,v:"hold"}],cards:[{n:"Umbreon VMAX Alt Art",pull:1/48,raw:900,p10:1500},{n:"Rayquaza VMAX Alt Art",pull:1/48,raw:350,p10:500}]},{id:"en_crown",lang:"en",n:"Crown Zenith",code:"SWSH12.5",era:"swsh",lean:"hold",note:"ETB-only. Giratina VSTAR Alt Art. $210-250/ETB. Strong hold.",prods:[{t:"etb",market:225,v:"hold"},{t:"pcetb",market:250,v:"hold"}],cards:[{n:"Giratina VSTAR Alt Art",pull:1/24,raw:90,p10:240}]},{id:"en_shining",lang:"en",n:"Shining Fates",code:"SWSH4.5",era:"swsh",lean:"hold",note:"Out of print. No booster box. Charizard VMAX SIR. Strong hold.",prods:[{t:"mini_tin",market:45,v:"hold"},{t:"etb",market:180,v:"hold"},{t:"box",market:450,v:"hold"}],cards:[{n:"Charizard VMAX SIR",pull:1/50,raw:220,p10:600}]},{id:"en_base",lang:"en",n:"Base Set (1st Ed.)",code:"BS1E",era:"vintage",lean:"always-hold",note:"1st Ed Charizard PSA 10 = $300k+. Generational asset. NEVER SELL.",prods:[{t:"loose",market:350,v:"hold"},{t:"box",market:42000,v:"hold"}]},{id:"jp_m4",lang:"jp",n:"Ninja Spinner (M4)",code:"M4",era:"mega",lean:"rip",note:"JP Chaos equiv. Last set at ¥180/pack. Strong buy before price increase.",prods:[{t:"jp_pack",market:4,v:"buy"},{t:"jp_box",market:95,v:"ok"}]},{id:"jp_m2",lang:"jp",n:"Inferno X (M2)",code:"M2",era:"mega",lean:"rip",note:"JP Phantasmal equiv. Box near reasonable price.",prods:[{t:"jp_pack",market:5,v:"ok"},{t:"jp_box",market:100,v:"ok"}]},{id:"jp_sv11w",lang:"jp",n:"White Flare (JP)",code:"SV11W",era:"sv",lean:"rip",note:"Box ~$80. Reasonable for JP ripping.",prods:[{t:"jp_pack",market:4,v:"ok"},{t:"jp_box",market:80,v:"ok"}]},{id:"jp_sv2a",lang:"jp",n:"Pokémon 151 (JP)",code:"SV2a",era:"sv",lean:"hold",note:"Most valuable modern JP set. SAR 1-in-6 boxes. Box $350+. Never rip.",prods:[{t:"jp_pack",market:18,v:"avoid"},{t:"jp_box",market:350,v:"hold"}]},{id:"jp_s8b",lang:"jp",n:"VMAX Climax HC",code:"S8b",era:"swsh",lean:"hold",note:"JP Evolving Skies era. Most popular SWSH JP. Box $400+. Hold.",prods:[{t:"jp_box",market:400,v:"hold"}]},{id:"kr_sv11b",lang:"kr",n:"Black Bolt (KR)",code:"SV11B",era:"sv",lean:"rip",note:"Box ~$45. Reasonable KR rip.",prods:[{t:"kr_pack",market:2,v:"ok"},{t:"kr_box",market:45,v:"ok"}]},{id:"kr_sv10",lang:"kr",n:"Glory of Team Rocket",code:"SV10",era:"sv",lean:"rip",note:"KR Destined Rivals. Box $37. KR singles thinner US market.",prods:[{t:"kr_pack",market:1.50,v:"ok"},{t:"kr_box",market:37,v:"ok"}]}];
+    const PVD={rip:{l:"RIP IT",c:"#3DBB50"},buy:{l:"BUY",c:"#3DBB50"},ok:{l:"OK",c:"#FFCB05"},skip:{l:"SKIP",c:"#F08030"},hold:{l:"HOLD",c:"#4A5FD6"},avoid:{l:"AVOID",c:"#CC0000"}};
+
+    let state={lang:"en",sid:"en_chaos",tracker:JSON.parse(localStorage.getItem("tcg_tracker")||"[]")};
+
+    // ============ UI FUNCTIONS ============
     function renderTabs(){
       const tabs=[{id:"scout",icon:"🎯",l:"Scout"},{id:"market",icon:"📊",l:"Market"},{id:"analyzer",icon:"🔬",l:"Analyzer"},{id:"grade",icon:"⭐",l:"Grade"},{id:"compare",icon:"⚖️",l:"Compare"},{id:"budget",icon:"💰",l:"Budget"},{id:"tracker",icon:"📦",l:"Tracker"},{id:"show",icon:"🎪",l:"At Show"}];
       document.getElementById("tabButtons").innerHTML=tabs.map(t=>`<button class="tab-btn ${t.id==='scout'?'active':''}" onclick="switchTab('${t.id}')">${t.icon} ${t.l}</button>`).join("");
@@ -692,6 +876,7 @@
       document.getElementById("tab-"+tabId).classList.add("active");
       document.querySelectorAll(".tab-btn").forEach(el=>el.classList.remove("active"));
       event.target.classList.add("active");
+      ParticleSystem.create(event.clientX, event.clientY, '✓', '#3DBB50', 800);
       if(tabId==="scout")renderScout();
       if(tabId==="market")renderMarket();
       if(tabId==="analyzer")renderAnalyzer();
@@ -725,17 +910,64 @@
     }
 
     function setLang(lang){state.lang=lang;state.sid=DB.find(s=>s.lang===lang)?.id||"en_chaos";applyTheme();renderScout();}
-    function renderMarket(){const set=DB.find(s=>s.id===state.sid)||DB[0];let html=`<div class="info-box"><strong>${set.n}</strong> — Top 5 products at current market prices</div>`;set.prods.slice(0,5).forEach((p,i)=>{const pt=PT[p.t];html+=`<div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: ${i<4?'1px solid rgba(255, 203, 5, 0.1)':'none'}"><span>${pt.n}</span><strong style="color: #FFCB05;">$${p.market}</strong></div>`;});document.getElementById("marketContent").innerHTML=html;}
+    function renderMarket(){const set=DB.find(s=>s.id===state.sid)||DB[0];let html=`<div class="info-box"><strong>${set.n}</strong> — Top 5 products at current market prices</div>`;set.prods.slice(0,5).forEach((p,i)=>{const pt=PT[p.t];html+=`<div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: ${i<4?'1px solid rgba(255, 203, 5, 0.1)':'none'}; transition: all 0.2s ease;" onmouseover="this.style.transform='translateX(4px)'" onmouseout="this.style.transform='translateX(0)'"><span>${pt.n}</span><strong style="color: #FFCB05;">\$${p.market}</strong></div>`;});document.getElementById("marketContent").innerHTML=html;}
     function renderAnalyzer(){const set=DB.find(s=>s.id===state.sid)||DB[0];let html="";if(set.cards&&set.cards.length>0){set.cards.forEach(card=>{const rate=Math.round(1/card.pull);html+=`<div class="card-box"><div class="card-name">${card.n}</div><div class="card-stats">Pull rate: 1 in ${rate} packs | ${Math.ceil(rate/9)} boxes for 1 hit</div><div class="card-value">Raw: $${card.raw} → PSA 10: $${card.p10}</div></div>`;});}else{html=`<div class="empty-state">No card data available for this set yet.</div>`;}document.getElementById("analyzerContent").innerHTML=html;}
     function renderGrade(){let html=`<div class="info-box">Grading cost vs resale multiplier (M10 = 10, M9 = 9)</div>`;GRADERS.forEach(g=>{html+=`<div class="card-box"><div class="card-name">${g.n}</div><div class="card-stats">Cost: $${g.cost} | Timeline: ${g.days}</div><div class="card-value">M10: ${g.m10}× | M9: ${g.m9}×</div></div>`;});document.getElementById("gradeContent").innerHTML=html;}
     function renderCompare(){const filtered=DB.filter(s=>s.lang===state.lang);let html=`<div class="info-box">Comparing top 3 ${state.lang.toUpperCase()} sets by market activity</div>`;filtered.slice(0,3).forEach(s=>{const avg=s.prods.reduce((a,p)=>a+p.market,0)/s.prods.length;html+=`<div class="card-box"><div class="card-name">${s.n}</div><div class="card-stats">${s.code} | ${s.prods.length} products | Avg price: $${Math.round(avg)}</div><div class="card-value">${s.note}</div></div>`;});document.getElementById("compareContent").innerHTML=html;}
     function renderBudget(){let html=`<div class="info-box">Suggest allocation across categories based on risk tolerance.</div><div class="card-box"><strong>Modern Hold</strong><div class="card-stats">35% - ETBs/boxes from sets 1-3 years old</div></div><div class="card-box"><strong>Grading Flips</strong><div class="card-stats">25% - Raw cards for PSA/TAG submits</div></div><div class="card-box"><strong>Vintage Asset</strong><div class="card-stats">25% - Base/Jungle/Shining Fates sealed</div></div><div class="card-box"><strong>New Release</strong><div class="card-stats">15% - Latest 2-3 sets at MSRP</div></div>`;document.getElementById("budgetContent").innerHTML=html;}
-    function renderTracker(){const totals=state.tracker.reduce((a,t)=>({spent:a.spent+t.cost,now:a.now+t.current}),{spent:0,now:0});document.getElementById("trackerSpent").textContent="$"+totals.spent.toFixed(2);document.getElementById("trackerValue").textContent="$"+totals.now.toFixed(2);document.getElementById("trackerValue").style.color=totals.now>=totals.spent?"#3DBB50":"#CC0000";let html="";if(state.tracker.length===0){html=`<div class="empty-state">No purchases yet. Add one below!</div>`;}else{state.tracker.forEach((t,i)=>{const pl=t.current-t.cost;html+=`<div class="tracker-item"><div class="tracker-item-info"><div class="tracker-item-name">${t.name}</div><div class="tracker-item-paid">Paid $${t.cost.toFixed(2)}</div></div><div style="text-align: right;"><div style="font-size: 14px; font-weight: 700; color: ${pl>=0?"#3DBB50":"#CC0000"};">${pl>=0?"+":""}$${pl.toFixed(2)}</div><div style="font-size: 10px; color: #888;">Worth $${t.current.toFixed(2)}</div></div><button class="delete-btn" onclick="deleteTracker(${i})">✕</button></div>`;});}document.getElementById("trackerList").innerHTML=html;}
-    function renderShow(){const set=DB.find(s=>s.id===state.sid)||DB[0];let html=`<div class="info-box"><strong>${set.n}</strong> — Event pricing reference</div>`;set.prods.slice(0,6).forEach((p,i)=>{const pt=PT[p.t];html+=`<div style="display: flex; justify-content: space-between; padding: 10px; background: rgba(17, 17, 17, 0.9); border: 2px solid rgba(255, 203, 5, 0.3); border-radius: 6px; margin-bottom: 6px;"><span>${pt.n}</span><strong style="color: #FFCB05;">$${p.market}</strong></div>`;});document.getElementById("showContent").innerHTML=html;}
-    function addTracker(){const name=document.getElementById("trackerName").value;const cost=parseFloat(document.getElementById("trackerCost").value)||0;const current=parseFloat(document.getElementById("trackerValue2").value)||0;if(name&&cost&&current){state.tracker.push({name,cost,current});localStorage.setItem("tcg_tracker",JSON.stringify(state.tracker));document.getElementById("trackerName").value="";document.getElementById("trackerCost").value="";document.getElementById("trackerValue2").value="";renderTracker();}}
-    function deleteTracker(idx){state.tracker.splice(idx,1);localStorage.setItem("tcg_tracker",JSON.stringify(state.tracker));renderTracker();}
 
-    // INIT
+    function renderTracker(){
+      const totals=state.tracker.reduce((a,t)=>({spent:a.spent+t.cost,now:a.now+t.current}),{spent:0,now:0});
+      const spentEl = document.getElementById("trackerSpent");
+      const valueEl = document.getElementById("trackerValue");
+
+      animateNumber(spentEl, totals.spent);
+      animateNumber(valueEl, totals.now);
+
+      valueEl.style.color=totals.now>=totals.spent?"#3DBB50":"#CC0000";
+
+      let html="";
+      if(state.tracker.length===0){
+        html=`<div class="empty-state">No purchases yet. Add one below!</div>`;
+      }else{
+        state.tracker.forEach((t,i)=>{
+          const pl=t.current-t.cost;
+          html+=`<div class="tracker-item"><div class="tracker-item-info"><div class="tracker-item-name">${t.name}</div><div class="tracker-item-paid">Paid $${t.cost.toFixed(2)}</div></div><div style="text-align: right;"><div style="font-size: 14px; font-weight: 700; color: ${pl>=0?"#3DBB50":"#CC0000"};">${pl>=0?"+":""}$${pl.toFixed(2)}</div><div style="font-size: 10px; color: #888;">Worth $${t.current.toFixed(2)}</div></div><button class="delete-btn" onclick="deleteTracker(${i})">✕</button></div>`;
+        });
+      }
+      document.getElementById("trackerList").innerHTML=html;
+    }
+
+    function renderShow(){const set=DB.find(s=>s.id===state.sid)||DB[0];let html=`<div class="info-box"><strong>${set.n}</strong> — Event pricing reference</div>`;set.prods.slice(0,6).forEach((p,i)=>{const pt=PT[p.t];html+=`<div style="display: flex; justify-content: space-between; padding: 11px; background: rgba(17, 17, 17, 0.9); border: 2px solid rgba(255, 203, 5, 0.3); border-radius: 8px; margin-bottom: 7px; transition: all 0.2s ease; cursor: pointer;" onmouseover="this.style.background='rgba(28, 28, 28, 0.95)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.background='rgba(17, 17, 17, 0.9)'; this.style.transform='translateY(0)'"><span>${pt.n}</span><strong style="color: #FFCB05;">$${p.market}</strong></div>`;});document.getElementById("showContent").innerHTML=html;}
+
+    function addTrackerWithFeedback(){
+      const name=document.getElementById("trackerName").value;
+      const cost=parseFloat(document.getElementById("trackerCost").value)||0;
+      const current=parseFloat(document.getElementById("trackerValue2").value)||0;
+
+      if(name&&cost&&current){
+        state.tracker.push({name,cost,current});
+        localStorage.setItem("tcg_tracker",JSON.stringify(state.tracker));
+
+        // Feedback
+        ParticleSystem.create(window.innerWidth/2, window.innerHeight/2, '✓ ADDED', '#3DBB50', 1000);
+        screenShake(3, 200);
+
+        document.getElementById("trackerName").value="";
+        document.getElementById("trackerCost").value="";
+        document.getElementById("trackerValue2").value="";
+        renderTracker();
+      }
+    }
+
+    function deleteTracker(idx){
+      state.tracker.splice(idx,1);
+      localStorage.setItem("tcg_tracker",JSON.stringify(state.tracker));
+      ParticleSystem.create(window.innerWidth/2, window.innerHeight/2, '✗ DELETED', '#CC0000', 800);
+      renderTracker();
+    }
+
+    // ============ INIT ============
     generateClouds();
     applyTheme();
     renderTabs();
