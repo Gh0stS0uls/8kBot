@@ -52,31 +52,39 @@ body::after {
   position: relative;
   z-index: 2;
 }
-/* Flying dragon - prominent */
+/* Pixel art Dragonite sprite */
 #root::before {
-  content: '🐉';
+  content: '';
   position: fixed;
-  top: 25%;
-  left: -5%;
-  font-size: 120px;
-  opacity: 0.6;
+  top: 22%;
+  left: 5%;
+  width: 120px;
+  height: 120px;
+  background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect x=%2224%22 y=%2224%22 width=%2216%22 height=%2216%22 fill=%22%233D7DCC%22/%3E%3Crect x=%2216%22 y=%2232%22 width=%228%22 height=%228%22 fill=%22%233D7DCC%22/%3E%3Crect x=%2240%22 y=%2232%22 width=%228%22 height=%228%22 fill=%22%233D7DCC%22/%3E%3Crect x=%2220%22 y=%2216%22 width=%228%22 height=%228%22 fill=%22%233D7DCC%22/%3E%3Crect x=%2236%22 y=%2216%22 width=%228%22 height=%228%22 fill=%22%233D7DCC%22/%3E%3Crect x=%2228%22 y=%228%22 width=%228%22 height=%228%22 fill=%22%23FF9933%22/%3E%3Crect x=%2228%22 y=%2240%22 width=%228%22 height=%228%22 fill=%22%23FF6633%22/%3E%3Crect x=%2216%22 y=%2240%22 width=%228%22 height=%228%22 fill=%22%23FF6633%22/%3E%3Crect x=%2240%22 y=%2240%22 width=%228%22 height=%228%22 fill=%22%23FF6633%22/%3E%3Crect x=%2212%22 y=%2224%22 width=%228%22 height=%228%22 fill=%22%233D7DCC%22/%3E%3Crect x=%2244%22 y=%2224%22 width=%228%22 height=%228%22 fill=%22%233D7DCC%22/%3E%3Crect x=%2224%22 y=%2248%22 width=%228%22 height=%228%22 fill=%22%23FF6633%22/%3E%3Crect x=%2232%22 y=%2248%22 width=%228%22 height=%228%22 fill=%22%23FF6633%22/%3E%3C/svg%3E');
+  background-size: 100% 100%;
+  opacity: 0.8;
   animation: drift-slow 100s linear infinite;
   pointer-events: none;
   z-index: 1;
-  filter: drop-shadow(4px 4px 8px rgba(0,0,0,0.3));
+  filter: drop-shadow(6px 6px 12px rgba(0,0,0,0.4));
+  image-rendering: pixelated;
 }
-/* Flying bird */
+/* Pixel art Rayquaza sprite */
 #root::after {
-  content: '🦅';
+  content: '';
   position: fixed;
-  top: 18%;
-  right: -2%;
-  font-size: 100px;
-  opacity: 0.5;
+  top: 15%;
+  right: 8%;
+  width: 100px;
+  height: 100px;
+  background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect x=%2220%22 y=%2224%22 width=%2824%22 height=%228%22 fill=%22%2300AA44%22/%3E%3Crect x=%2216%22 y=%2232%22 width=%228%22 height=%228%22 fill=%2200AA44%22/%3E%3Crect x=%2240%22 y=%2232%22 width=%228%22 height=%228%22 fill=%2200AA44%22/%3E%3Crect x=%2212%22 y=%2216%22 width=%228%22 height=%228%22 fill=%22%2300AA44%22/%3E%3Crect x=%2244%22 y=%2216%22 width=%228%22 height=%228%22 fill=%22%2300AA44%22/%3E%3Crect x=%2216%22 y=%2240%22 width=%2832%22 height=%228%22 fill=%22%2300CC66%22/%3E%3Crect x=%2224%22 y=%2248%22 width=%2216%22 height=%228%22 fill=%22%23FFFF00%22/%3E%3Crect x=%2220%22 y=%2256%22 width=%228%22 height=%228%22 fill=%22%2300AA44%22/%3E%3Crect x=%2236%22 y=%2256%22 width=%228%22 height=%228%22 fill=%22%2300AA44%22/%3E%3Crect x=%2228%22 y=%2208%22 width=%228%22 height=%228%22 fill=%22%23FFFF00%22/%3E%3Crect x=%2232%22 y=%2256%22 width=%228%22 height=%228%22 fill=%22%2300AA44%22/%3E%3C/svg%3E');
+  background-size: 100% 100%;
+  opacity: 0.75;
   animation: drift 90s linear infinite reverse;
   pointer-events: none;
   z-index: 1;
-  filter: drop-shadow(3px 3px 6px rgba(0,0,0,0.25));
+  filter: drop-shadow(5px 5px 10px rgba(0,0,0,0.35));
+  image-rendering: pixelated;
 }
 button {
   cursor: pointer;
