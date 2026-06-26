@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <title>TCG Pokédex - Retro Edition</title>
+  <title>TCG Pokedexs</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -98,14 +98,15 @@
 
     @keyframes drift-sky { from { transform: translateX(0); } to { transform: translateX(-50%); } }
     @keyframes wave-motion { from { background-position: 0 0; } to { background-position: -300px 0; } }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes slideInRight { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
-    @keyframes slideInLeft { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideInRight { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes slideInLeft { from { opacity: 0; transform: translateX(-24px); } to { opacity: 1; transform: translateX(0); } }
     @keyframes floatUp { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-60px); } }
     @keyframes bounce { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
     @keyframes screenShake { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(-2px, -2px); } 50% { transform: translate(2px, 2px); } 75% { transform: translate(-2px, 2px); } }
     @keyframes glow-pulse { 0%, 100% { filter: drop-shadow(0 0 4px currentColor); } 50% { filter: drop-shadow(0 0 12px currentColor); } }
     @keyframes glow-intense { 0%, 100% { box-shadow: 0 0 12px rgba(255, 203, 5, 0.4), inset 0 0 8px rgba(255, 203, 5, 0.1); } 50% { box-shadow: 0 0 24px rgba(255, 203, 5, 0.6), inset 0 0 12px rgba(255, 203, 5, 0.2); } }
+    @keyframes smoothScale { 0% { transform: scale(0.96); opacity: 0.4; } to { transform: scale(1); opacity: 1; } }
 
     /* MAIN CONTENT */
     .container {
@@ -224,7 +225,7 @@
 
     .tab-content.active {
       display: block;
-      animation: slideInRight 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      animation: slideInRight 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
     /* PARTICLE SYSTEM */
@@ -541,10 +542,10 @@
       border-radius: 12px;
       padding: 18px;
       text-align: center;
-      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-      will-change: transform;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      will-change: transform, box-shadow;
       box-shadow: 0 4px 16px rgba(0,0,0,0.4), 0 0 12px rgba(255, 203, 5, 0.3);
-      animation: fadeIn 0.4s ease-out, glow-intense 4s ease-in-out infinite;
+      animation: smoothScale 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), glow-intense 4s ease-in-out infinite;
     }
 
     .stat-box:hover {
@@ -577,9 +578,9 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
       will-change: transform, box-shadow;
-      animation: fadeIn 0.3s ease-out;
+      animation: smoothScale 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
       box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     }
 
@@ -850,24 +851,25 @@
       }, duration);
     }
 
-    function animateNumber(element, target, duration = 600) {
+    function animateNumber(element, target, duration = 700) {
       const startValue = parseFloat(element.textContent.replace('$', '')) || 0;
       const startTime = performance.now();
 
       const animate = (currentTime) => {
         const elapsed = currentTime - startTime;
         const progress = Math.min(elapsed / duration, 1);
-        const easeOut = 1 - Math.pow(1 - progress, 3);
+        // Smooth cubic-bezier easing for satisfying feel
+        const easeOut = progress < 0.5
+          ? 2 * progress * progress
+          : -1 + (4 - 2 * progress) * progress;
         const current = startValue + (target - startValue) * easeOut;
 
-        if (element.id === 'trackerSpent' || element.id === 'trackerValue') {
-          element.textContent = '$' + current.toFixed(2);
-        } else {
-          element.textContent = '$' + current.toFixed(2);
-        }
+        element.textContent = '$' + current.toFixed(2);
 
         if (progress < 1) {
           requestAnimationFrame(animate);
+        } else {
+          element.textContent = '$' + target.toFixed(2);
         }
       };
 
