@@ -803,7 +803,7 @@ export default function App(){
   const [obs,setObs]=useState(6);
   const [hits,setHits]=useState(0);
   const [mktProd,setMktProd]=useState("etb");
-  const [period,setPeriod]=useState("1M");
+  const [period,setPeriod]=useState("All");
   const [tracker,setTracker]=useState([]);
   const [newT,setNewT]=useState({name:"",cost:"",current:""});
   const [liveLoading,setLiveLoading]=useState(false);
@@ -867,7 +867,7 @@ export default function App(){
   // market tab derived values — wrapped in useMemo to isolate from other tabs
   const mktData=useMemo(()=>{
     try{
-      const slices={"1D":1,"1W":2,"2W":3,"1M":5,"2M":7,"4M":10,"1Y":999};
+      const slices={"1D":1,"1W":2,"2W":3,"1M":5,"2M":7,"4M":10,"1Y":20,"All":9999};
       const ep=set.prods.find(p=>p.t===mktProd&&PT[p.t]?.pk>0)?mktProd:(set.prods.find(p=>PT[p.t]?.pk>0)?.t||"etb");
       // Try direct match, then bundle suffix, then common aliases
       const all=OHLC[sid]?.[ep]
@@ -1175,7 +1175,7 @@ If a source has no data for a product, omit that source key.`;
             {/* Controls */}
             <div style={{display:"flex",gap:8,marginBottom:10}}>
               <div style={{flex:2}}>
-                <select value={sid} onChange={e=>{const ns=DB.find(s=>s.id===e.target.value);setSid(e.target.value);setPeriod("1M");if(ns){const fp=ns.prods.find(p=>PT[p.t]?.pk>0);if(fp)setMktProd(fp.t);}}}>
+                <select value={sid} onChange={e=>{const ns=DB.find(s=>s.id===e.target.value);setSid(e.target.value);setPeriod("All");if(ns){const fp=ns.prods.find(p=>PT[p.t]?.pk>0);if(fp)setMktProd(fp.t);}}}>
                   {DB.filter(s=>s.lang===lang).map(s=><option key={s.id} value={s.id}>{s.n} ({s.code})</option>)}
                 </select>
               </div>
@@ -1198,7 +1198,7 @@ If a source has no data for a product, omit that source key.`;
                       <span className="mono" style={{fontSize:13,fontWeight:700,color:isUp?C.green:C.red,background:isUp?"rgba(61,187,80,0.12)":"rgba(204,0,0,0.12)",padding:"3px 10px",borderRadius:20}}>
                         {isUp?"▲":"▼"} {isUp?"+":""}${Math.abs(Math.round(pChg)).toLocaleString()} ({isUp?"+":""}{pPct.toFixed(1)}%)
                       </span>
-                      <span style={{fontSize:11,color:C.faint}}>{period} period</span>
+                      <span style={{fontSize:11,color:C.faint}}>{period==="All"?"since launch":`${period} period`}</span>
                     </div>
                   )}
                 </div>
@@ -1211,9 +1211,9 @@ If a source has no data for a product, omit that source key.`;
 
               {/* Period buttons */}
               <div style={{display:"flex",gap:6}}>
-                {["1D","1W","2W","1M","2M","4M","1Y"].map(p=>(
+                {["1M","2M","4M","1Y","All"].map(p=>(
                   <button key={p} onClick={()=>setPeriod(p)} style={{flex:1,padding:"5px 0",borderRadius:6,fontSize:11,fontWeight:600,background:period===p?C.yellow:"transparent",color:period===p?C.bg:C.dim,border:`1px solid ${period===p?C.yellow:C.border}`}}>
-                    {p}
+                    {p==="All"?"All Time":p}
                   </button>
                 ))}
               </div>
@@ -1242,26 +1242,43 @@ If a source has no data for a product, omit that source key.`;
             }
 
             {/* OHLC stats (only when candlestick data available) */}
-            {ohlcCur && ohlcFirst && (
-              <div>
-                <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8,marginBottom:10}}>
-                  {[{l:"OPEN",v:`$${ohlcFirst.o.toLocaleString()}`},{l:"HIGH",v:`$${periodHi.toLocaleString()}`,c:C.green},{l:"LOW",v:`$${isFinite(periodLo)?periodLo.toLocaleString():"—"}`,c:C.red},{l:"CLOSE",v:`$${ohlcCur.c.toLocaleString()}`,c:isUp?C.green:C.red}].map(({l,v,c})=>(
-                    <div key={l} style={{background:C.panel,border:`1px solid ${C.border}`,borderRadius:8,padding:"8px 10px",textAlign:"center"}}>
-                      <div className="mono" style={{fontSize:9,color:C.faint,letterSpacing:1}}>{l}</div>
-                      <div className="mono" style={{fontSize:13,fontWeight:700,color:c||C.text,marginTop:3}}>{v}</div>
+            {ohlcCur && ohlcFirst && (()=>{
+              const allData=mktData.all;
+              const launchPrice=allData&&allData.length>0?allData[0].o:null;
+              const launchGain=launchPrice&&launchPrice>0?((ohlcCur.c-launchPrice)/launchPrice*100):null;
+              const launchLabel=allData&&allData.length>0?allData[0].d:"Launch";
+              return (
+                <div>
+                  {/* Launch → now hero row */}
+                  <div style={{background:C.p2,border:`1px solid ${C.border}`,borderRadius:10,padding:"12px 14px",marginBottom:10,display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
+                    <div style={{flex:1,minWidth:100}}>
+                      <div className="mono" style={{fontSize:9,color:C.faint,letterSpacing:1}}>LAUNCH ({launchLabel})</div>
+                      <div className="mono" style={{fontSize:18,fontWeight:700,color:C.dim,marginTop:2}}>${launchPrice!=null?launchPrice.toLocaleString():"—"}</div>
                     </div>
-                  ))}
-                </div>
-                <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginBottom:14}}>
-                  {[{l:"ALL-TIME HIGH",v:fmt$(ath),c:C.yellow},{l:"ALL-TIME LOW",v:fmt$(atl),c:C.faint},{l:"RELEASE MSRP",v:`$${mktMsrp<5?Number(mktMsrp).toFixed(2):mktMsrp}`,c:C.dim}].map(({l,v,c})=>(
-                    <div key={l} style={{background:C.panel,border:`1px solid ${C.border}`,borderRadius:8,padding:"8px 10px"}}>
-                      <div className="mono" style={{fontSize:9,color:C.faint,letterSpacing:1}}>{l}</div>
-                      <div className="mono" style={{fontSize:13,fontWeight:600,color:c,marginTop:3}}>{v}</div>
+                    <div style={{fontSize:20,color:C.faint}}>→</div>
+                    <div style={{flex:1,minWidth:100}}>
+                      <div className="mono" style={{fontSize:9,color:C.faint,letterSpacing:1}}>NOW</div>
+                      <div className="mono" style={{fontSize:18,fontWeight:700,color:C.text,marginTop:2}}>${ohlcCur.c.toLocaleString()}</div>
                     </div>
-                  ))}
+                    {launchGain!=null&&(
+                      <div style={{background:launchGain>=0?"rgba(61,187,80,0.12)":"rgba(204,0,0,0.12)",border:`1px solid ${launchGain>=0?C.green:C.red}44`,borderRadius:8,padding:"8px 14px",textAlign:"center"}}>
+                        <div className="mono" style={{fontSize:9,color:C.faint,letterSpacing:1}}>TOTAL GAIN</div>
+                        <div className="mono" style={{fontSize:20,fontWeight:700,color:launchGain>=0?C.green:C.red,marginTop:2}}>{launchGain>=0?"+":""}{Math.round(launchGain)}%</div>
+                        <div className="mono" style={{fontSize:10,color:C.faint,marginTop:1}}>{launchGain>=0?"+":""}${Math.round(ohlcCur.c-launchPrice).toLocaleString()}</div>
+                      </div>
+                    )}
+                  </div>
+                  <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginBottom:14}}>
+                    {[{l:"ALL-TIME HIGH",v:fmt$(ath),c:C.yellow},{l:"ALL-TIME LOW",v:fmt$(atl),c:C.faint},{l:"RELEASE MSRP",v:`$${mktMsrp<5?Number(mktMsrp).toFixed(2):mktMsrp}`,c:C.dim}].map(({l,v,c})=>(
+                      <div key={l} style={{background:C.panel,border:`1px solid ${C.border}`,borderRadius:8,padding:"8px 10px"}}>
+                        <div className="mono" style={{fontSize:9,color:C.faint,letterSpacing:1}}>{l}</div>
+                        <div className="mono" style={{fontSize:13,fontWeight:600,color:c,marginTop:3}}>{v}</div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
 
             {/* Rankings */}
             <div className="mono" style={{fontSize:10,letterSpacing:2,color:C.faint,marginBottom:8}}>ALL SETS — SORTED BY MARKET MULTIPLE</div>
