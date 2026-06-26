@@ -1,49 +1,65 @@
 *, *::before, *::after { box-sizing: border-box; }
 @keyframes drift { 0% { transform: translateX(0); } 100% { transform: translateX(100vw); } }
 @keyframes drift-slow { 0% { transform: translateX(-50%); } 100% { transform: translateX(50vw); } }
+@keyframes float-drift { 0% { transform: translateY(0px) translateX(0); } 50% { transform: translateY(-10px) translateX(20px); } 100% { transform: translateY(0px) translateX(40px); } }
 body {
   margin: 0;
   padding: 0;
   background:
     linear-gradient(180deg,
-      #87CEEB 0%,
-      #B8D4E8 10%,
-      #FFB88C 25%,
-      #FFA366 40%,
-      #FF9966 50%,
-      #88BB99 75%,
-      #558855 100%);
+      #0f1f4f 0%,
+      #1e3a7a 15%,
+      #3a5fa8 30%,
+      #5b7fbf 50%,
+      #8ba4d8 70%,
+      #c5d4f0 100%);
   background-attachment: fixed;
   font-family: 'Courier New', monospace;
   position: relative;
   overflow-x: hidden;
   min-height: 100vh;
 }
-/* Sky clouds - large and prominent */
+/* Sky with gradient fade and fluffy clouds */
 body::before {
   content: '';
   position: fixed;
-  top: 10%;
+  top: 0;
   left: 0;
   width: 300%;
-  height: 50%;
-  background: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1200 600%22%3E%3Cdefs%3E%3CfilterColor id=%22shadow%22%3E%3CfeGaussianBlur in=%22SourceGraphic%22 stdDeviation=%224%22 /%3E%3C/filter%3E%3C/defs%3E%3C!-- Large fluffy clouds --%3E%3Cpath d=%22M50 200 Q80 150 120 160 Q150 120 180 160 Q220 140 240 190 Q200 220 140 220 Z%22 fill=%22%23FFE8CC%22 opacity=%220.95%22 filter=%22url(%23shadow)%22 /%3E%3Cpath d=%22M200 180 Q240 140 280 150 Q320 120 360 150 Q400 130 430 190 Q380 220 290 225 Z%22 fill=%22%23FFDDB3%22 opacity=%220.9%22 filter=%22url(%23shadow)%22 /%3E%3Cpath d=%22M400 220 Q450 170 500 180 Q550 150 600 180 Q650 160 680 220 Q620 250 500 255 Z%22 fill=%22%23FFE8CC%22 opacity=%220.92%22 filter=%22url(%23shadow)%22 /%3E%3Cpath d=%22M700 200 Q750 150 800 160 Q840 130 880 160 Q920 140 950 200 Q890 230 790 230 Z%22 fill=%22%23FFDDB3%22 opacity=%220.9%22 filter=%22url(%23shadow)%22 /%3E%3Cpath d=%22M950 210 Q1000 160 1050 170 Q1100 140 1150 170 Q1190 150 1220 220 Q1150 250 1050 250 Z%22 fill=%22%23FFE8CC%22 opacity=%220.93%22 filter=%22url(%23shadow)%22 /%3E%3C/svg%3E') repeat-x;
+  height: 70%;
+  background:
+    linear-gradient(180deg,
+      rgba(15, 31, 79, 0.1) 0%,
+      rgba(62, 81, 181, 0.05) 30%,
+      rgba(255, 255, 255, 0) 100%),
+    url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1600 800%22%3E%3Cdefs%3E%3CfilterColor id=%22cloudShadow%22%3E%3CfeGaussianBlur in=%22SourceGraphic%22 stdDeviation=%226%22 /%3E%3CfeOffset dx=%221%22 dy=%222%22 result=%22offsetblur%22 /%3E%3CfeFlood flood-color=%22%23000000%22 flood-opacity=%220.2%22 result=%22offsetcolor%22 /%3E%3CfeComposite in=%22offsetcolor%22 in2=%22offsetblur%22 operator=%22in%22 result=%22offsetblur%22 /%3E%3CfeMerge%3E%3CfeMergeNode in=%22offsetblur%22 /%3E%3CfeMergeNode in=%22SourceGraphic%22 /%3E%3C/feMerge%3E%3C/filter%3E%3C/defs%3E%3C!-- Large fluffy clouds --%3E%3Cpath d=%22M40 320 Q80 260 140 270 Q180 240 230 270 Q280 250 320 330 Q270 360 100 360 Z%22 fill=%22%23FFFFFF%22 opacity=%220.88%22 filter=%22url(%23cloudShadow)%22 /%3E%3Cpath d=%22M320 280 Q380 210 460 230 Q520 200 590 240 Q660 210 720 300 Q640 350 380 360 Z%22 fill=%22%23F0F0F0%22 opacity=%220.82%22 filter=%22url(%23cloudShadow)%22 /%3E%3Cpath d=%22M750 350 Q820 280 920 300 Q1000 260 1080 310 Q1160 280 1210 370 Q1080 420 850 420 Z%22 fill=%22%23FFFFFF%22 opacity=%220.85%22 filter=%22url(%23cloudShadow)%22 /%3E%3Cpath d=%22M1250 300 Q1320 240 1410 260 Q1480 230 1570 280 Q1600 250 1600 340 L1600 280 Q1520 220 1410 240 Q1330 200 1250 260 Z%22 fill=%22%23EFEFEF%22 opacity=%220.78%22 filter=%22url(%23cloudShadow)%22 /%3E%3C!-- Additional cloud details --%3E%3Cpath d=%22M100 250 Q130 200 170 210 Q190 180 220 210 Q240 195 260 250%22 fill=%22%23F5F5F5%22 opacity=%220.7%22 /%3E%3Cpath d=%22M400 200 Q440 160 500 175 Q530 150 570 180%22 fill=%22%23F5F5F5%22 opacity=%220.65%22 /%3E%3C/svg%3E') repeat-x;
   background-size: auto 100%;
   pointer-events: none;
   z-index: 1;
-  animation: drift 80s linear infinite;
+  animation: drift 120s linear infinite;
 }
-/* Forest treeline */
+/* Mountain and water layers */
 body::after {
   content: '';
   position: fixed;
   bottom: 0;
   left: 0;
   width: 100%;
-  height: 40%;
+  height: 100%;
   background:
-    linear-gradient(90deg, #1a4d2e 0%, #2d5a3d 25%, #1a4d2e 50%, #2d5a3d 75%, #1a4d2e 100%),
-    linear-gradient(180deg, transparent 0%, rgba(26, 77, 46, 0.8) 40%, rgba(26, 77, 46, 1) 100%);
+    linear-gradient(90deg, #3a4a6a 0%, #5a6a8a 25%, #3a4a6a 50%, #5a6a8a 75%, #3a4a6a 100%),
+    linear-gradient(180deg,
+      rgba(58, 74, 106, 0) 0%,
+      rgba(58, 74, 106, 0.3) 25%,
+      rgba(30, 60, 90, 0.6) 50%,
+      rgba(20, 50, 80, 0.85) 70%,
+      rgba(15, 35, 60, 1) 100%),
+    linear-gradient(90deg,
+      #1a3050 0%,
+      #2d5a7b 20%,
+      #4a8fa8 50%,
+      #2d5a7b 80%,
+      #1a3050 100%);
   pointer-events: none;
   z-index: 0;
 }
@@ -52,39 +68,39 @@ body::after {
   position: relative;
   z-index: 2;
 }
-/* Pixel art Dragonite sprite */
+/* Lugia-inspired flying Pokemon - large and detailed */
 #root::before {
   content: '';
   position: fixed;
-  top: 22%;
-  left: 5%;
-  width: 120px;
-  height: 120px;
-  background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect x=%2224%22 y=%2224%22 width=%2216%22 height=%2216%22 fill=%22%233D7DCC%22/%3E%3Crect x=%2216%22 y=%2232%22 width=%228%22 height=%228%22 fill=%22%233D7DCC%22/%3E%3Crect x=%2240%22 y=%2232%22 width=%228%22 height=%228%22 fill=%22%233D7DCC%22/%3E%3Crect x=%2220%22 y=%2216%22 width=%228%22 height=%228%22 fill=%22%233D7DCC%22/%3E%3Crect x=%2236%22 y=%2216%22 width=%228%22 height=%228%22 fill=%22%233D7DCC%22/%3E%3Crect x=%2228%22 y=%228%22 width=%228%22 height=%228%22 fill=%22%23FF9933%22/%3E%3Crect x=%2228%22 y=%2240%22 width=%228%22 height=%228%22 fill=%22%23FF6633%22/%3E%3Crect x=%2216%22 y=%2240%22 width=%228%22 height=%228%22 fill=%22%23FF6633%22/%3E%3Crect x=%2240%22 y=%2240%22 width=%228%22 height=%228%22 fill=%22%23FF6633%22/%3E%3Crect x=%2212%22 y=%2224%22 width=%228%22 height=%228%22 fill=%22%233D7DCC%22/%3E%3Crect x=%2244%22 y=%2224%22 width=%228%22 height=%228%22 fill=%22%233D7DCC%22/%3E%3Crect x=%2224%22 y=%2248%22 width=%228%22 height=%228%22 fill=%22%23FF6633%22/%3E%3Crect x=%2232%22 y=%2248%22 width=%228%22 height=%228%22 fill=%22%23FF6633%22/%3E%3C/svg%3E');
+  top: 18%;
+  left: 10%;
+  width: 320px;
+  height: 320px;
+  background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 256 256%22%3E%3Cdefs%3E%3ClinearGradient id=%22bodyGrad%22 x1=%220%25%22 y1=%220%25%22 x2=%22100%25%22 y2=%22100%25%22%3E%3Cstop offset=%220%25%22 style=%22stop-color:%235A8ACC;stop-opacity:1%22 /%3E%3Cstop offset=%22100%25%22 style=%22stop-color:%233A5A9C%22 /%3E%3C/linearGradient%3E%3ClinearGradient id=%22wingGrad%22 x1=%220%25%22 y1=%220%25%22 x2=%22100%25%22 y2=%22100%25%22%3E%3Cstop offset=%220%25%22 style=%22stop-color:%234A7ABC;stop-opacity:1%22 /%3E%3Cstop offset=%22100%25%22 style=%22stop-color:%232A4A7C%22 /%3E%3C/linearGradient%3E%3CfilterColor id=%22glow%22%3E%3CfeGaussianBlur in=%22SourceGraphic%22 stdDeviation=%224%22 /%3E%3CfeOffset dx=%221%22 dy=%222%22 result=%22offsetblur%22 /%3E%3CfeFlood flood-color=%22%23000000%22 flood-opacity=%220.3%22 result=%22offsetcolor%22 /%3E%3CfeComposite in=%22offsetcolor%22 in2=%22offsetblur%22 operator=%22in%22 result=%22offsetblur%22 /%3E%3CfeMerge%3E%3CfeMergeNode in=%22offsetblur%22 /%3E%3CfeMergeNode in=%22SourceGraphic%22 /%3E%3C/feMerge%3E%3C/filter%3E%3C/defs%3E%3C!-- Left Wing --%3E%3Cpath d=%22M 80 100 Q 50 80 30 120 Q 40 140 70 130 L 80 110 Z%22 fill=%22url(%23wingGrad)%22 filter=%22url(%23glow)%22 /%3E%3Cpath d=%22M 30 120 Q 20 130 15 155 Q 35 150 50 135%22 fill=%22%232A4A7C%22 filter=%22url(%23glow)%22 /%3E%3C!-- Right Wing --%3E%3Cpath d=%22M 176 100 Q 206 80 226 120 Q 216 140 186 130 L 176 110 Z%22 fill=%22url(%23wingGrad)%22 filter=%22url(%23glow)%22 /%3E%3Cpath d=%22M 226 120 Q 236 130 241 155 Q 221 150 206 135%22 fill=%22%232A4A7C%22 filter=%22url(%23glow)%22 /%3E%3C!-- Main Body --%3E%3Cellipse cx=%22128%22 cy=%22140%22 rx=%2248%22 ry=%2260%22 fill=%22url(%23bodyGrad)%22 filter=%22url(%23glow)%22 /%3E%3C!-- Head --%3E%3Ccircle cx=%22128%22 cy=%2280%22 r=%2240%22 fill=%22%235A8ACC%22 filter=%22url(%23glow)%22 /%3E%3C!-- Eyes --%3E%3Ccircle cx=%22112%22 cy=%2272%22 r=%228%22 fill=%22%23FFFF00%22 filter=%22url(%23glow)%22 /%3E%3Ccircle cx=%22144%22 cy=%2272%22 r=%228%22 fill=%22%23FFFF00%22 filter=%22url(%23glow)%22 /%3E%3Ccircle cx=%22114%22 cy=%2270%22 r=%224%22 fill=%22%23000000%22 /%3E%3Ccircle cx=%22146%22 cy=%2270%22 r=%224%22 fill=%22%23000000%22 /%3E%3C!-- Beak --%3E%3Cpath d=%22M 128 100 L 125 115 L 131 115 Z%22 fill=%22%23FFB347%22 filter=%22url(%23glow)%22 /%3E%3C!-- Body Details --%3E%3Cellipse cx=%22128%22 cy=%22145%22 rx=%2235%22 ry=%2245%22 fill=%22%234A7ABC%22 opacity=%220.6%22 /%3E%3C!-- Tail Feathers Left --%3E%3Cpath d=%22M 95 190 Q 80 200 70 220 Q 85 215 100 200%22 fill=%22%234A7ABC%22 filter=%22url(%23glow)%22 /%3E%3C!-- Tail Feathers Right --%3E%3Cpath d=%22M 161 190 Q 176 200 186 220 Q 171 215 156 200%22 fill=%22%234A7ABC%22 filter=%22url(%23glow)%22 /%3E%3C!-- Center Tail --%3E%3Cpath d=%22M 128 200 Q 128 225 125 245 Q 131 225 128 200%22 fill=%22%233A5A9C%22 filter=%22url(%23glow)%22 /%3E%3C!-- Feet --%3E%3Cpath d=%22M 115 200 L 112 215 M 141 200 L 144 215%22 stroke=%22%23FFB347%22 stroke-width=%224%22 stroke-linecap=%22round%22 filter=%22url(%23glow)%22 /%3E%3C!-- Wing Details --%3E%3Cpath d=%22M 50 105 L 40 110 M 55 125 L 45 130 M 50 145 L 40 150%22 stroke=%22%232A4A7C%22 stroke-width=%222%22 opacity=%220.5%22 /%3E%3Cpath d=%22M 206 105 L 216 110 M 201 125 L 211 130 M 206 145 L 216 150%22 stroke=%22%232A4A7C%22 stroke-width=%222%22 opacity=%220.5%22 /%3E%3C/svg%3E');
   background-size: 100% 100%;
-  opacity: 0.8;
-  animation: drift-slow 100s linear infinite;
+  opacity: 0.92;
+  animation: float-drift 25s ease-in-out infinite;
   pointer-events: none;
   z-index: 1;
-  filter: drop-shadow(6px 6px 12px rgba(0,0,0,0.4));
-  image-rendering: pixelated;
+  filter: drop-shadow(10px 10px 20px rgba(0,0,0,0.5));
+  image-rendering: auto;
 }
-/* Pixel art Rayquaza sprite */
+/* Secondary flying Pokemon - smaller detail element */
 #root::after {
   content: '';
   position: fixed;
-  top: 15%;
-  right: 8%;
-  width: 100px;
-  height: 100px;
-  background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect x=%2220%22 y=%2224%22 width=%2824%22 height=%228%22 fill=%22%2300AA44%22/%3E%3Crect x=%2216%22 y=%2232%22 width=%228%22 height=%228%22 fill=%2200AA44%22/%3E%3Crect x=%2240%22 y=%2232%22 width=%228%22 height=%228%22 fill=%2200AA44%22/%3E%3Crect x=%2212%22 y=%2216%22 width=%228%22 height=%228%22 fill=%22%2300AA44%22/%3E%3Crect x=%2244%22 y=%2216%22 width=%228%22 height=%228%22 fill=%22%2300AA44%22/%3E%3Crect x=%2216%22 y=%2240%22 width=%2832%22 height=%228%22 fill=%22%2300CC66%22/%3E%3Crect x=%2224%22 y=%2248%22 width=%2216%22 height=%228%22 fill=%22%23FFFF00%22/%3E%3Crect x=%2220%22 y=%2256%22 width=%228%22 height=%228%22 fill=%22%2300AA44%22/%3E%3Crect x=%2236%22 y=%2256%22 width=%228%22 height=%228%22 fill=%22%2300AA44%22/%3E%3Crect x=%2228%22 y=%2208%22 width=%228%22 height=%228%22 fill=%22%23FFFF00%22/%3E%3Crect x=%2232%22 y=%2256%22 width=%228%22 height=%228%22 fill=%22%2300AA44%22/%3E%3C/svg%3E');
+  top: 25%;
+  right: 12%;
+  width: 200px;
+  height: 200px;
+  background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 160 160%22%3E%3Cdefs%3E%3CfilterColor id=%22glow2%22%3E%3CfeGaussianBlur in=%22SourceGraphic%22 stdDeviation=%223%22 /%3E%3C/filter%3E%3C/defs%3E%3C!-- Wing Left --%3E%3Cpath d=%22M 50 70 Q 35 55 20 85 Q 30 95 50 85%22 fill=%22%233A6BA8%22 filter=%22url(%23glow2)%22 /%3E%3C!-- Body --%3E%3Cellipse cx=%2280%22 cy=%2290%22 rx=%2230%22 ry=%2235%22 fill=%22%234A7ABC%22 filter=%22url(%23glow2)%22 /%3E%3C!-- Wing Right --%3E%3Cpath d=%22M 110 70 Q 125 55 140 85 Q 130 95 110 85%22 fill=%22%233A6BA8%22 filter=%22url(%23glow2)%22 /%3E%3C!-- Head --%3E%3Ccircle cx=%2280%22 cy=%2255%22 r=%2220%22 fill=%22%235A8ACC%22 filter=%22url(%23glow2)%22 /%3E%3C!-- Eyes --%3E%3Ccircle cx=%2272%22 cy=%2250%22 r=%225%22 fill=%22%23FFFF00%22 /%3E%3Ccircle cx=%2288%22 cy=%2250%22 r=%225%22 fill=%22%23FFFF00%22 /%3E%3C!-- Tail --%3E%3Cpath d=%22M 80 125 Q 80 140 75 150 Q 85 140 80 125%22 fill=%22%233A5A9C%22 /%3E%3C/svg%3E');
   background-size: 100% 100%;
   opacity: 0.75;
-  animation: drift 90s linear infinite reverse;
+  animation: float-drift 30s ease-in-out infinite reverse;
   pointer-events: none;
   z-index: 1;
-  filter: drop-shadow(5px 5px 10px rgba(0,0,0,0.35));
-  image-rendering: pixelated;
+  filter: drop-shadow(8px 8px 16px rgba(0,0,0,0.4));
+  image-rendering: auto;
 }
 button {
   cursor: pointer;
