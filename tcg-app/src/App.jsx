@@ -19,45 +19,43 @@ const fmt$=v=>(v==null||!isFinite(v))?"—":v>=1000?`$${(v/1000).toFixed(1)}k`:`
 const fmtPct=x=>x<0.001?(x*100).toFixed(3)+"%":(x*100).toFixed(1)+"%";
 const packs4=(p,t)=>Math.ceil(Math.log(1-t)/Math.log(1-p));
 
-// ── SET LOGOS ──────────────────────────────────────────────────────────────────
-const SET_LOGOS={
-  en_pitch:"https://bulbapedia.bulbagarden.net/wiki/File:Pitch_Black_Logo.png",
-  en_30th:"https://bulbapedia.bulbagarden.net/wiki/File:TCG30_Logo.png",
-  en_delta:"https://bulbapedia.bulbagarden.net/wiki/File:Delta_Reign_Logo.png",
-  en_chaos:"https://bulbapedia.bulbagarden.net/wiki/File:Chaos_Rising_Logo.png",
-  en_phantasmal:"https://bulbapedia.bulbagarden.net/wiki/File:Phantasmal_Flames_Logo.png",
-  en_perfect:"https://bulbapedia.bulbagarden.net/wiki/File:Perfect_Order_Logo.png",
-  en_ascended:"https://bulbapedia.bulbagarden.net/wiki/File:Ascended_Heroes_Logo.png",
-  en_destined:"https://bulbapedia.bulbagarden.net/wiki/File:Destined_Rivals_Logo.png",
-  en_prismatic:"https://bulbapedia.bulbagarden.net/wiki/File:Prismatic_Evolutions_Logo.png",
-  en_journey:"https://bulbapedia.bulbagarden.net/wiki/File:Journey_Together_Logo.png",
-  en_151:"https://bulbapedia.bulbagarden.net/wiki/File:Pok%C3%A9mon_151_Logo.png",
-  en_surging:"https://bulbapedia.bulbagarden.net/wiki/File:Surging_Sparks_Logo.png",
-  en_paldean:"https://bulbapedia.bulbagarden.net/wiki/File:Paldean_Fates_Logo.png",
-  en_paradox:"https://bulbapedia.bulbagarden.net/wiki/File:Paradox_Rift_Logo.png",
-  en_evolving:"https://bulbapedia.bulbagarden.net/wiki/File:Evolving_Skies_Logo.png",
-  en_crown:"https://bulbapedia.bulbagarden.net/wiki/File:Crown_Zenith_Logo.png",
-  en_shining:"https://bulbapedia.bulbagarden.net/wiki/File:Shining_Fates_Logo.png",
-  en_celebrations:"https://bulbapedia.bulbagarden.net/wiki/File:Celebrations_Logo.png",
-  en_surging2:"https://bulbapedia.bulbagarden.net/wiki/File:Brilliant_Stars_Logo.png",
-  jp_sv4a:"https://bulbapedia.bulbagarden.net/wiki/File:Scarlet_%26_Violet_4a_Logo.png",
-  jp_s8b:"https://bulbapedia.bulbagarden.net/wiki/File:Sword_%26_Shield_8b_Logo.png",
-  jp_s12a:"https://bulbapedia.bulbagarden.net/wiki/File:Sword_%26_Shield_12a_Logo.png",
-  jp_sv2a:"https://bulbapedia.bulbagarden.net/wiki/File:Scarlet_%26_Violet_2a_Logo.png",
-  jp_m2a:"https://bulbapedia.bulbagarden.net/wiki/File:Mask_2a_Logo.png",
-  jp_m1:"https://bulbapedia.bulbagarden.net/wiki/File:Mask_1_Logo.png",
-  jp_s4a:"https://bulbapedia.bulbagarden.net/wiki/File:Sword_%26_Shield_4a_Logo.png",
-  jp_sm12a:"https://bulbapedia.bulbagarden.net/wiki/File:Sun_%26_Moon_12a_Logo.png",
-  kr_sv4a:"https://bulbapedia.bulbagarden.net/wiki/File:Scarlet_%26_Violet_4a_Korean_Logo.png",
-  kr_sv2a:"https://bulbapedia.bulbagarden.net/wiki/File:Scarlet_%26_Violet_2a_Korean_Logo.png",
-  kr_sv8a:"https://bulbapedia.bulbagarden.net/wiki/File:Scarlet_%26_Violet_8a_Korean_Logo.png",
-  kr_s8b:"https://bulbapedia.bulbagarden.net/wiki/File:Sword_%26_Shield_8b_Korean_Logo.png",
+// ── SET PACK IMAGES ────────────────────────────────────────────────────────────
+const SET_IMAGES={
+  en_pitch:"https://images.tcgplayer.com/fit/scales/filters:no_upscale()/jpg/230832.jpg",
+  en_30th:"https://images.tcgplayer.com/fit/scales/filters:no_upscale()/jpg/226321.jpg",
+  en_delta:"https://images.tcgplayer.com/fit/scales/filters:no_upscale()/jpg/243088.jpg",
+  en_chaos:"https://images.tcgplayer.com/fit/scales/filters:no_upscale()/jpg/230039.jpg",
+  en_phantasmal:"https://images.tcgplayer.com/fit/scales/filters:no_upscale()/jpg/217506.jpg",
+  en_perfect:"https://images.tcgplayer.com/fit/scales/filters:no_upscale()/jpg/227355.jpg",
+  en_ascended:"https://images.tcgplayer.com/fit/scales/filters:no_upscale()/jpg/227356.jpg",
+  en_destined:"https://images.tcgplayer.com/fit/scales/filters:no_upscale()/jpg/207847.jpg",
+  en_prismatic:"https://images.tcgplayer.com/fit/scales/filters:no_upscale()/jpg/198635.jpg",
+  en_journey:"https://images.tcgplayer.com/fit/scales/filters:no_upscale()/jpg/203872.jpg",
+  en_151:"https://images.tcgplayer.com/fit/scales/filters:no_upscale()/jpg/178887.jpg",
+  en_surging:"https://images.tcgplayer.com/fit/scales/filters:no_upscale()/jpg/194194.jpg",
+  en_paldean:"https://images.tcgplayer.com/fit/scales/filters:no_upscale()/jpg/181281.jpg",
+  en_paradox:"https://images.tcgplayer.com/fit/scales/filters:no_upscale()/jpg/160055.jpg",
+  en_evolving:"https://images.tcgplayer.com/fit/scales/filters:no_upscale()/jpg/122374.jpg",
+  en_crown:"https://images.tcgplayer.com/fit/scales/filters:no_upscale()/jpg/165227.jpg",
+  en_shining:"https://images.tcgplayer.com/fit/scales/filters:no_upscale()/jpg/88455.jpg",
+  en_celebrations:"https://images.tcgplayer.com/fit/scales/filters:no_upscale()/jpg/125486.jpg",
+  en_surging2:"https://images.tcgplayer.com/fit/scales/filters:no_upscale()/jpg/126885.jpg",
+  jp_sv4a:"https://images.tcgplayer.com/fit/scales/filters:no_upscale()/jpg/234578.jpg",
+  jp_s8b:"https://images.tcgplayer.com/fit/scales/filters:no_upscale()/jpg/104592.jpg",
+  jp_s12a:"https://images.tcgplayer.com/fit/scales/filters:no_upscale()/jpg/116843.jpg",
+  jp_sv2a:"https://images.tcgplayer.com/fit/scales/filters:no_upscale()/jpg/165234.jpg",
+  jp_m2a:"https://images.tcgplayer.com/fit/scales/filters:no_upscale()/jpg/220345.jpg",
+  jp_m1:"https://images.tcgplayer.com/fit/scales/filters:no_upscale()/jpg/210234.jpg",
+  jp_s4a:"https://images.tcgplayer.com/fit/scales/filters:no_upscale()/jpg/88234.jpg",
+  jp_sm12a:"https://images.tcgplayer.com/fit/scales/filters:no_upscale()/jpg/67841.jpg",
+  kr_sv4a:"https://images.tcgplayer.com/fit/scales/filters:no_upscale()/jpg/234579.jpg",
+  kr_sv2a:"https://images.tcgplayer.com/fit/scales/filters:no_upscale()/jpg/165235.jpg",
+  kr_sv8a:"https://images.tcgplayer.com/fit/scales/filters:no_upscale()/jpg/215678.jpg",
+  kr_s8b:"https://images.tcgplayer.com/fit/scales/filters:no_upscale()/jpg/104593.jpg",
 };
 
 const getPackImg=(setId)=>{
-  const url=SET_LOGOS[setId];
-  if(url) return url.replace("/wiki/File:","/wiki/Special:FilePath/");
-  return "https://via.placeholder.com/60x80/333/fff?text=Pack";
+  return SET_IMAGES[setId]||"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 160'%3E%3Crect width='120' height='160' fill='%23333'/%3E%3C/svg%3E";
 };
 
 // ── PRODUCT CATALOG ────────────────────────────────────────────────────────────
