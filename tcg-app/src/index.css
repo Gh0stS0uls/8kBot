@@ -72,34 +72,34 @@ body::after {
 #root::before {
   content: '';
   position: fixed;
-  top: 18%;
-  left: 10%;
-  width: 320px;
-  height: 320px;
+  top: 15%;
+  left: 12%;
+  width: 420px;
+  height: 420px;
   background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 256 256%22%3E%3Cdefs%3E%3ClinearGradient id=%22bodyGrad%22 x1=%220%25%22 y1=%220%25%22 x2=%22100%25%22 y2=%22100%25%22%3E%3Cstop offset=%220%25%22 style=%22stop-color:%235A8ACC;stop-opacity:1%22 /%3E%3Cstop offset=%22100%25%22 style=%22stop-color:%233A5A9C%22 /%3E%3C/linearGradient%3E%3ClinearGradient id=%22wingGrad%22 x1=%220%25%22 y1=%220%25%22 x2=%22100%25%22 y2=%22100%25%22%3E%3Cstop offset=%220%25%22 style=%22stop-color:%234A7ABC;stop-opacity:1%22 /%3E%3Cstop offset=%22100%25%22 style=%22stop-color:%232A4A7C%22 /%3E%3C/linearGradient%3E%3CfilterColor id=%22glow%22%3E%3CfeGaussianBlur in=%22SourceGraphic%22 stdDeviation=%224%22 /%3E%3CfeOffset dx=%221%22 dy=%222%22 result=%22offsetblur%22 /%3E%3CfeFlood flood-color=%22%23000000%22 flood-opacity=%220.3%22 result=%22offsetcolor%22 /%3E%3CfeComposite in=%22offsetcolor%22 in2=%22offsetblur%22 operator=%22in%22 result=%22offsetblur%22 /%3E%3CfeMerge%3E%3CfeMergeNode in=%22offsetblur%22 /%3E%3CfeMergeNode in=%22SourceGraphic%22 /%3E%3C/feMerge%3E%3C/filter%3E%3C/defs%3E%3C!-- Left Wing --%3E%3Cpath d=%22M 80 100 Q 50 80 30 120 Q 40 140 70 130 L 80 110 Z%22 fill=%22url(%23wingGrad)%22 filter=%22url(%23glow)%22 /%3E%3Cpath d=%22M 30 120 Q 20 130 15 155 Q 35 150 50 135%22 fill=%22%232A4A7C%22 filter=%22url(%23glow)%22 /%3E%3C!-- Right Wing --%3E%3Cpath d=%22M 176 100 Q 206 80 226 120 Q 216 140 186 130 L 176 110 Z%22 fill=%22url(%23wingGrad)%22 filter=%22url(%23glow)%22 /%3E%3Cpath d=%22M 226 120 Q 236 130 241 155 Q 221 150 206 135%22 fill=%22%232A4A7C%22 filter=%22url(%23glow)%22 /%3E%3C!-- Main Body --%3E%3Cellipse cx=%22128%22 cy=%22140%22 rx=%2248%22 ry=%2260%22 fill=%22url(%23bodyGrad)%22 filter=%22url(%23glow)%22 /%3E%3C!-- Head --%3E%3Ccircle cx=%22128%22 cy=%2280%22 r=%2240%22 fill=%22%235A8ACC%22 filter=%22url(%23glow)%22 /%3E%3C!-- Eyes --%3E%3Ccircle cx=%22112%22 cy=%2272%22 r=%228%22 fill=%22%23FFFF00%22 filter=%22url(%23glow)%22 /%3E%3Ccircle cx=%22144%22 cy=%2272%22 r=%228%22 fill=%22%23FFFF00%22 filter=%22url(%23glow)%22 /%3E%3Ccircle cx=%22114%22 cy=%2270%22 r=%224%22 fill=%22%23000000%22 /%3E%3Ccircle cx=%22146%22 cy=%2270%22 r=%224%22 fill=%22%23000000%22 /%3E%3C!-- Beak --%3E%3Cpath d=%22M 128 100 L 125 115 L 131 115 Z%22 fill=%22%23FFB347%22 filter=%22url(%23glow)%22 /%3E%3C!-- Body Details --%3E%3Cellipse cx=%22128%22 cy=%22145%22 rx=%2235%22 ry=%2245%22 fill=%22%234A7ABC%22 opacity=%220.6%22 /%3E%3C!-- Tail Feathers Left --%3E%3Cpath d=%22M 95 190 Q 80 200 70 220 Q 85 215 100 200%22 fill=%22%234A7ABC%22 filter=%22url(%23glow)%22 /%3E%3C!-- Tail Feathers Right --%3E%3Cpath d=%22M 161 190 Q 176 200 186 220 Q 171 215 156 200%22 fill=%22%234A7ABC%22 filter=%22url(%23glow)%22 /%3E%3C!-- Center Tail --%3E%3Cpath d=%22M 128 200 Q 128 225 125 245 Q 131 225 128 200%22 fill=%22%233A5A9C%22 filter=%22url(%23glow)%22 /%3E%3C!-- Feet --%3E%3Cpath d=%22M 115 200 L 112 215 M 141 200 L 144 215%22 stroke=%22%23FFB347%22 stroke-width=%224%22 stroke-linecap=%22round%22 filter=%22url(%23glow)%22 /%3E%3C!-- Wing Details --%3E%3Cpath d=%22M 50 105 L 40 110 M 55 125 L 45 130 M 50 145 L 40 150%22 stroke=%22%232A4A7C%22 stroke-width=%222%22 opacity=%220.5%22 /%3E%3Cpath d=%22M 206 105 L 216 110 M 201 125 L 211 130 M 206 145 L 216 150%22 stroke=%22%232A4A7C%22 stroke-width=%222%22 opacity=%220.5%22 /%3E%3C/svg%3E');
   background-size: 100% 100%;
-  opacity: 0.92;
+  opacity: 0.95;
   animation: float-drift 25s ease-in-out infinite;
   pointer-events: none;
   z-index: 1;
-  filter: drop-shadow(10px 10px 20px rgba(0,0,0,0.5));
+  filter: drop-shadow(12px 12px 24px rgba(0,0,0,0.6));
   image-rendering: auto;
 }
-/* Secondary flying Pokemon - smaller detail element */
+/* Secondary flying Pokemon - detail element on right */
 #root::after {
   content: '';
   position: fixed;
-  top: 25%;
-  right: 12%;
-  width: 200px;
-  height: 200px;
+  top: 20%;
+  right: 10%;
+  width: 240px;
+  height: 240px;
   background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 160 160%22%3E%3Cdefs%3E%3CfilterColor id=%22glow2%22%3E%3CfeGaussianBlur in=%22SourceGraphic%22 stdDeviation=%223%22 /%3E%3C/filter%3E%3C/defs%3E%3C!-- Wing Left --%3E%3Cpath d=%22M 50 70 Q 35 55 20 85 Q 30 95 50 85%22 fill=%22%233A6BA8%22 filter=%22url(%23glow2)%22 /%3E%3C!-- Body --%3E%3Cellipse cx=%2280%22 cy=%2290%22 rx=%2230%22 ry=%2235%22 fill=%22%234A7ABC%22 filter=%22url(%23glow2)%22 /%3E%3C!-- Wing Right --%3E%3Cpath d=%22M 110 70 Q 125 55 140 85 Q 130 95 110 85%22 fill=%22%233A6BA8%22 filter=%22url(%23glow2)%22 /%3E%3C!-- Head --%3E%3Ccircle cx=%2280%22 cy=%2255%22 r=%2220%22 fill=%22%235A8ACC%22 filter=%22url(%23glow2)%22 /%3E%3C!-- Eyes --%3E%3Ccircle cx=%2272%22 cy=%2250%22 r=%225%22 fill=%22%23FFFF00%22 /%3E%3Ccircle cx=%2288%22 cy=%2250%22 r=%225%22 fill=%22%23FFFF00%22 /%3E%3C!-- Tail --%3E%3Cpath d=%22M 80 125 Q 80 140 75 150 Q 85 140 80 125%22 fill=%22%233A5A9C%22 /%3E%3C/svg%3E');
   background-size: 100% 100%;
-  opacity: 0.75;
+  opacity: 0.8;
   animation: float-drift 30s ease-in-out infinite reverse;
   pointer-events: none;
   z-index: 1;
-  filter: drop-shadow(8px 8px 16px rgba(0,0,0,0.4));
+  filter: drop-shadow(10px 10px 20px rgba(0,0,0,0.5));
   image-rendering: auto;
 }
 button {
