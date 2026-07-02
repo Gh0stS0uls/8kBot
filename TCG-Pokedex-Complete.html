@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>TCG Pokédex</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0A0A0A; color: #F0EDE4; font-family: system-ui, -apple-system, sans-serif; }
+    .header { background: #111111; border-bottom: 1px solid #2A2A2A; padding: 12px 16px; position: sticky; top: 0; z-index: 50; }
+    .header h1 { font-size: 22px; font-weight: 700; background: linear-gradient(90deg, #CC0000, #FFCB05); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .header p { font-size: 11px; color: #555; }
+    .tabs { background: #1C1C1C; border-bottom: 1px solid #2A2A2A; display: flex; gap: 0; overflow-x: auto; padding: 0; }
+    .tab-btn { flex: 0 0 auto; padding: 10px 12px; background: transparent; border: none; color: #888; font-size: 10px; font-weight: 400; border-radius: 0; cursor: pointer; white-space: nowrap; }
+    .tab-btn.active { background: #2A2A2A; color: #FFCB05; font-weight: 600; }
+    .content { max-width: 900px; margin: 0 auto; padding: 14px 14px 100px; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .lang-buttons { display: flex; gap: 8px; margin-bottom: 10px; }
+    .lang-btn { flex: 1; padding: 9px; background: transparent; border: 1px solid #2A2A2A; color: #888; border-radius: 8px; cursor: pointer; font-weight: 600; }
+    .lang-btn.active { background: #1C1C1C; border-color: #FFCB05; color: #FFCB05; }
+    select { background: #1C1C1C; border: 1px solid #2A2A2A; color: #F0EDE4; border-radius: 8px; padding: 8px 10px; width: 100%; font-size: 14px; margin-bottom: 10px; outline: none; -webkit-appearance: none; }
+    .verdict-box { background: rgba(61, 187, 80, 0.10); border: 1.5px solid #3DBB50; border-radius: 12px; padding: 14px 16px; margin-bottom: 12px; }
+    .verdict-title { font-size: 18px; font-weight: 700; color: #3DBB50; margin-bottom: 6px; }
+    .verdict-note { font-size: 13px; color: #888; }
+    .category-label { font-size: 10px; color: #555; margin-bottom: 8px; font-weight: 600; text-transform: uppercase; margin-top: 12px; }
+    .products-table { background: #111111; border: 1px solid #2A2A2A; border-radius: 10px; overflow: hidden; margin-bottom: 14px; }
+    table { width: 100%; font-size: 12px; border-collapse: collapse; }
+    th { padding: 8px; text-align: left; color: #555; font-weight: 400; font-size: 10px; background: #1C1C1C; border-bottom: 1px solid #2A2A2A; }
+    td { padding: 8px; border-bottom: 1px solid #2A2A2A; }
+    tr:last-child td { border-bottom: none; }
+    tbody tr:nth-child(even) { background: #1C1C1C; }
+    tbody tr:nth-child(odd) { background: #0A0A0A; }
+    .price { text-align: center; color: #FFCB05; font-weight: 600; }
+    .verdict { text-align: center; }
+    .badge { display: inline-block; background: rgba(61, 187, 80, 0.20); color: #3DBB50; border: 1px solid rgba(61, 187, 80, 0.44); border-radius: 4px; padding: 3px 8px; font-size: 10px; font-weight: 700; }
+    .card-box { background: #111111; border: 1px solid #2A2A2A; border-radius: 10px; padding: 12px; margin-bottom: 8px; }
+    .card-name { font-weight: 600; font-size: 12px; }
+    .card-stats { font-size: 11px; color: #555; margin-top: 4px; }
+    .card-value { font-size: 11px; color: #FFCB05; margin-top: 2px; }
+    .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+    .stat-box { background: #111111; border: 1px solid #2A2A2A; border-radius: 8px; padding: 12px; }
+    .stat-label { font-size: 10px; color: #555; }
+    .stat-value { font-size: 16px; font-weight: 700; margin-top: 4px; }
+    .tracker-item { background: #111111; border: 1px solid #2A2A2A; border-radius: 8px; padding: 12px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; }
+    .tracker-item-info { flex: 1; }
+    .tracker-item-name { font-weight: 600; }
+    .tracker-item-paid { font-size: 11px; color: #555; }
+    .delete-btn { background: transparent; border: 1px solid #2A2A2A; color: #555; border-radius: 6px; padding: 6px 10px; cursor: pointer; font-size: 12px; }
+    .form-group { margin-bottom: 8px; }
+    input { background: #1C1C1C; border: 1px solid #2A2A2A; color: #F0EDE4; border-radius: 6px; padding: 8px; width: 100%; font-size: 12px; outline: none; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+    button { background: #3DBB50; color: #0A0A0A; border: none; border-radius: 8px; padding: 10px; cursor: pointer; font-weight: 700; font-size: 14px; width: 100%; }
+    button:hover { opacity: 0.9; }
+    .empty-state { background: #111111; border: 1px solid #2A2A2A; border-radius: 10px; padding: 20px; text-align: center; color: #555; }
+    h3 { color: #FFCB05; margin-bottom: 12px; margin-top: 12px; font-size: 14px; }
+    .info-box { background: #111111; border: 1px solid #2A2A2A; border-radius: 10px; padding: 12px; margin-bottom: 12px; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>TCG Pokédex</h1>
+    <p>Complete market data • Portfolio tracking</p>
+  </div>
+  <div class="tabs" id="tabButtons"></div>
+  <div class="content">
+    <div class="tab-content active" id="tab-scout">
+      <div class="lang-buttons" id="langButtons"></div>
+      <select id="setSelect"></select>
+      <div class="verdict-box">
+        <div class="verdict-title" id="verdictTitle">Set Info</div>
+        <div class="verdict-note" id="verdictNote">Select a set to see details</div>
+      </div>
+      <div id="productsContainer"></div>
+    </div>
+    <div class="tab-content" id="tab-market"><h3>Market Data</h3><div id="marketContent"></div></div>
+    <div class="tab-content" id="tab-analyzer"><h3>Pull Rate Calculator</h3><div id="analyzerContent"></div></div>
+    <div class="tab-content" id="tab-grade"><h3>Grading ROI Calculator</h3><div class="info-box">All values based on current market averages for graded cards.</div><div id="gradeContent"></div></div>
+    <div class="tab-content" id="tab-compare"><h3>Compare Sets</h3><div id="compareContent"></div></div>
+    <div class="tab-content" id="tab-budget"><h3>Portfolio Allocation</h3><div id="budgetContent"></div></div>
+    <div class="tab-content" id="tab-tracker">
+      <div class="stat-grid">
+        <div class="stat-box"><div class="stat-label">Spent</div><div class="stat-value" id="trackerSpent">$0.00</div></div>
+        <div class="stat-box"><div class="stat-label">Value Now</div><div class="stat-value" id="trackerValue" style="color: #3DBB50;">$0.00</div></div>
+      </div>
+      <div id="trackerList"></div>
+      <div style="background: #111111; border: 1px solid #2A2A2A; border-radius: 10px; padding: 12px; margin-top: 16px;">
+        <div class="form-group"><input type="text" id="trackerName" placeholder="What (e.g. Evolving Skies ETB)"></div>
+        <div class="form-row">
+          <input type="number" id="trackerCost" placeholder="Paid $" step="0.01" min="0">
+          <input type="number" id="trackerValue2" placeholder="Worth $" step="0.01" min="0">
+        </div>
+        <button onclick="addTracker()">+ Add Purchase</button>
+      </div>
+    </div>
+    <div class="tab-content" id="tab-show"><h3>At a Show</h3><div class="info-box">Quick reference for current set valuations at events.</div><div id="showContent"></div></div>
+  </div>
+  <script>
+    const C={bg:"#0A0A0A",panel:"#111111",p2:"#1C1C1C",border:"#2A2A2A",text:"#F0EDE4",dim:"#888",faint:"#555",red:"#CC0000",yellow:"#FFCB05",blue:"#4A5FD6",green:"#3DBB50"};
+    const PT={loose:{n:"Loose pack",cat:"Packs"},b1:{n:"1-pack",cat:"Packs"},b3:{n:"3-pack",cat:"Packs"},mini_tin:{n:"Mini tin (2p)",cat:"Tins"},bundle:{n:"Bundle (6p)",cat:"Bundles"},etb:{n:"ETB (9p)",cat:"Bundles"},pcetb:{n:"PC ETB (11p)",cat:"Bundles"},box:{n:"Booster box (36p)",cat:"Boxes"},upc:{n:"Ultra Premium (16p+)",cat:"Collections"},jp_pack:{n:"JP pack",cat:"Japanese"},jp_box:{n:"JP box (30p)",cat:"Japanese"},kr_pack:{n:"KR pack",cat:"Korean"},kr_box:{n:"KR box (30p)",cat:"Korean"}};
+    const GRADERS=[{n:"PSA",cost:80,days:"40-50d",m10:1.00,m9:0.38},{n:"TAG",cost:149,days:"15-30d",m10:0.80,m9:0.34},{n:"CGC",cost:16,days:"60-100d",m10:0.78,m9:0.33}];
+    const DB=[{id:"en_chaos",lang:"en",n:"Chaos Rising",code:"ME04",era:"mega",lean:"rip",note:"Greninja ex SIR $350. Best rip EV.",prods:[{t:"loose",market:6.50,v:"skip"},{t:"b3",market:14,v:"ok"},{t:"bundle",market:30,v:"ok"},{t:"etb",market:58,v:"ok"},{t:"box",market:235,v:"ok"}],cards:[{n:"Mega Greninja ex SIR",pull:1/400,raw:350,p10:1000},{n:"Any SIR (avg)",pull:1/101,raw:45,p10:135}]},{id:"en_phantasmal",lang:"en",n:"Phantasmal Flames",code:"ME02",era:"mega",lean:"rip",note:"Charizard X SIR $780. Guaranteed ex every pack.",prods:[{t:"loose",market:5.50,v:"ok"},{t:"b3",market:14,v:"ok"},{t:"bundle",market:28,v:"buy"},{t:"etb",market:52,v:"buy"},{t:"box",market:148,v:"rip"}],cards:[{n:"Mega Charizard X SIR",pull:1/400,raw:780,p10:2000},{n:"Any SIR (avg)",pull:1/80,raw:80,p10:240}]},{id:"en_perfect",lang:"en",n:"Perfect Order",code:"ME03",era:"mega",lean:"hold",note:"Negative rip EV. Sealed up 18-35% since launch.",prods:[{t:"loose",market:5,v:"skip"},{t:"bundle",market:28,v:"hold"},{t:"etb",market:55,v:"hold"},{t:"pcetb",market:65,v:"hold"},{t:"box",market:150,v:"hold"}],cards:[{n:"Any SIR (avg)",pull:1/81,raw:50,p10:150}]},{id:"en_destined",lang:"en",n:"Destined Rivals",code:"SV10",era:"sv",lean:"single",note:"Mewtwo SIR $500. Buy raw single, not sealed.",prods:[{t:"loose",market:15.70,v:"avoid"},{t:"bundle",market:90,v:"hold"},{t:"etb",market:140,v:"hold"},{t:"box",market:565,v:"hold"}],cards:[{n:"Rocket's Mewtwo ex SIR",pull:1/376,raw:500,p10:1150}]},{id:"en_prismatic",lang:"en",n:"Prismatic Evolutions",code:"SV8.5",era:"sv",lean:"hold",note:"Umbreon SIR $1,250. ETBs 2.8× MSRP and climbing.",prods:[{t:"loose",market:12,v:"avoid"},{t:"mini_tin",market:28,v:"hold"},{t:"bundle",market:75,v:"hold"},{t:"etb",market:140,v:"hold"},{t:"pcetb",market:180,v:"hold"}],cards:[{n:"Umbreon ex SIR",pull:1/45,raw:1250,p10:4500},{n:"Sylveon ex SIR",pull:1/45,raw:200,p10:700}]},{id:"en_151",lang:"en",n:"Pokémon 151",code:"SV3.5",era:"sv",lean:"hold",note:"ETBs 4× MSRP. 30th anniversary demand. Strong hold.",prods:[{t:"bundle",market:120,v:"hold"},{t:"etb",market:220,v:"hold"},{t:"upc",market:650,v:"hold"}],cards:[{n:"Charizard ex SIR",pull:1/288,raw:400,p10:1500},{n:"Venusaur ex SIR",pull:1/288,raw:150,p10:580}]},{id:"en_surging",lang:"en",n:"Surging Sparks",code:"SV8",era:"sv",lean:"hold",note:"Pikachu ex SIR $1,200. Don't rip at current box price.",prods:[{t:"bundle",market:45,v:"hold"},{t:"etb",market:90,v:"hold"},{t:"box",market:300,v:"hold"}],cards:[{n:"Pikachu ex SIR",pull:1/400,raw:1200,p10:3000}]},{id:"en_evolving",lang:"en",n:"Evolving Skies",code:"SWSH7",era:"swsh",lean:"hold",note:"Blue-chip. Moonbreon $900. Box $200 in 2021 → $2,600 now.",prods:[{t:"etb",market:310,v:"hold"},{t:"box",market:2600,v:"hold"}],cards:[{n:"Umbreon VMAX Alt Art",pull:1/48,raw:900,p10:1500},{n:"Rayquaza VMAX Alt Art",pull:1/48,raw:350,p10:500}]},{id:"en_crown",lang:"en",n:"Crown Zenith",code:"SWSH12.5",era:"swsh",lean:"hold",note:"ETB-only. Giratina VSTAR Alt Art. $210-250/ETB. Strong hold.",prods:[{t:"etb",market:225,v:"hold"},{t:"pcetb",market:250,v:"hold"}],cards:[{n:"Giratina VSTAR Alt Art",pull:1/24,raw:90,p10:240}]},{id:"en_shining",lang:"en",n:"Shining Fates",code:"SWSH4.5",era:"swsh",lean:"hold",note:"Out of print. No booster box. Charizard VMAX SIR. Strong hold.",prods:[{t:"mini_tin",market:45,v:"hold"},{t:"etb",market:180,v:"hold"},{t:"box",market:450,v:"hold"}],cards:[{n:"Charizard VMAX SIR",pull:1/50,raw:220,p10:600}]},{id:"en_base",lang:"en",n:"Base Set (1st Ed.)",code:"BS1E",era:"vintage",lean:"always-hold",note:"1st Ed Charizard PSA 10 = $300k+. Generational asset. NEVER SELL.",prods:[{t:"loose",market:350,v:"hold"},{t:"box",market:42000,v:"hold"}]},{id:"jp_m4",lang:"jp",n:"Ninja Spinner (M4)",code:"M4",era:"mega",lean:"rip",note:"JP Chaos equiv. Last set at ¥180/pack. Strong buy before price increase.",prods:[{t:"jp_pack",market:4,v:"buy"},{t:"jp_box",market:95,v:"ok"}]},{id:"jp_m2",lang:"jp",n:"Inferno X (M2)",code:"M2",era:"mega",lean:"rip",note:"JP Phantasmal equiv. Box near reasonable price.",prods:[{t:"jp_pack",market:5,v:"ok"},{t:"jp_box",market:100,v:"ok"}]},{id:"jp_sv11w",lang:"jp",n:"White Flare (JP)",code:"SV11W",era:"sv",lean:"rip",note:"Box ~$80. Reasonable for JP ripping.",prods:[{t:"jp_pack",market:4,v:"ok"},{t:"jp_box",market:80,v:"ok"}]},{id:"jp_sv2a",lang:"jp",n:"Pokémon 151 (JP)",code:"SV2a",era:"sv",lean:"hold",note:"Most valuable modern JP set. SAR 1-in-6 boxes. Box $350+. Never rip.",prods:[{t:"jp_pack",market:18,v:"avoid"},{t:"jp_box",market:350,v:"hold"}]},{id:"jp_s8b",lang:"jp",n:"VMAX Climax HC",code:"S8b",era:"swsh",lean:"hold",note:"JP Evolving Skies era. Most popular SWSH JP. Box $400+. Hold.",prods:[{t:"jp_box",market:400,v:"hold"}]},{id:"kr_sv11b",lang:"kr",n:"Black Bolt (KR)",code:"SV11B",era:"sv",lean:"rip",note:"Box ~$45. Reasonable KR rip.",prods:[{t:"kr_pack",market:2,v:"ok"},{t:"kr_box",market:45,v:"ok"}]},{id:"kr_sv10",lang:"kr",n:"Glory of Team Rocket",code:"SV10",era:"sv",lean:"rip",note:"KR Destined Rivals. Box $37. KR singles thinner US market.",prods:[{t:"kr_pack",market:1.50,v:"ok"},{t:"kr_box",market:37,v:"ok"}]}];
+    const PVD={rip:{l:"RIP IT",c:C.green},buy:{l:"BUY",c:C.green},ok:{l:"OK",c:C.yellow},skip:{l:"SKIP",c:"#F08030"},hold:{l:"HOLD",c:C.blue},avoid:{l:"AVOID",c:C.red}};
+    let state={lang:"en",sid:"en_chaos",tracker:JSON.parse(localStorage.getItem("tcg_tracker")||"[]")};
+    function renderTabs(){const tabs=[{id:"scout",icon:"🎯",l:"Scout"},{id:"market",icon:"📊",l:"Market"},{id:"analyzer",icon:"🔬",l:"Analyzer"},{id:"grade",icon:"⭐",l:"Grade"},{id:"compare",icon:"⚖️",l:"Compare"},{id:"budget",icon:"💰",l:"Budget"},{id:"tracker",icon:"📦",l:"Tracker"},{id:"show",icon:"🎪",l:"At Show"}];document.getElementById("tabButtons").innerHTML=tabs.map(t=>`<button class="tab-btn ${t.id==='scout'?'active':''}" onclick="switchTab('${t.id}')">${t.icon} ${t.l}</button>`).join("");}
+    function switchTab(tabId){document.querySelectorAll(".tab-content").forEach(el=>el.classList.remove("active"));document.getElementById("tab-"+tabId).classList.add("active");document.querySelectorAll(".tab-btn").forEach(el=>el.classList.remove("active"));event.target.classList.add("active");if(tabId==="scout")renderScout();if(tabId==="market")renderMarket();if(tabId==="analyzer")renderAnalyzer();if(tabId==="grade")renderGrade();if(tabId==="compare")renderCompare();if(tabId==="budget")renderBudget();if(tabId==="tracker")renderTracker();if(tabId==="show")renderShow();}
+    function renderScout(){const langContainer=document.getElementById("langButtons");langContainer.innerHTML=[{id:"en",n:"EN"},{id:"jp",n:"JP"},{id:"kr",n:"KR"}].map(l=>`<button class="lang-btn ${state.lang===l.id?"active":""}" onclick="setLang('${l.id}')">${l.n}</button>`).join("");const filtered=DB.filter(s=>s.lang===state.lang);const setSelect=document.getElementById("setSelect");setSelect.innerHTML=filtered.map(s=>`<option value="${s.id}">${s.n} (${s.code})</option>`).join("");setSelect.value=state.sid;setSelect.onchange=(e)=>{state.sid=e.target.value;renderScout();};const set=DB.find(s=>s.id===state.sid)||DB[0];document.getElementById("verdictTitle").textContent=set.n;document.getElementById("verdictNote").textContent=set.note;const grouped={};set.prods.forEach(p=>{const pt=PT[p.t];const cat=pt.cat||"Other";if(!grouped[cat])grouped[cat]=[];grouped[cat].push(p);});let html="";for(const[cat,prods]of Object.entries(grouped)){html+=`<div class="category-label">${cat.toUpperCase()}</div><div class="products-table"><table><thead><tr><th>Product</th><th class="price">Market</th><th class="verdict">Verdict</th></tr></thead><tbody>`;prods.forEach((p,i)=>{const pt=PT[p.t];const pv=PVD[p.v]||{l:"—",c:C.faint};html+=`<tr><td>${pt.n}</td><td class="price">$${p.market}</td><td class="verdict"><span class="badge">${pv.l}</span></td></tr>`;});html+=`</tbody></table></div>`;}document.getElementById("productsContainer").innerHTML=html;}
+    function setLang(lang){state.lang=lang;state.sid=DB.find(s=>s.lang===lang)?.id||"en_chaos";renderScout();}
+    function renderMarket(){const set=DB.find(s=>s.id===state.sid)||DB[0];let html=`<div class="info-box"><strong>${set.n}</strong> — Top 5 products at current market prices</div>`;set.prods.slice(0,5).forEach((p,i)=>{const pt=PT[p.t];html+=`<div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: ${i<4?'1px solid #2A2A2A':'none'}"><span>${pt.n}</span><strong style="color: #FFCB05;">$${p.market}</strong></div>`;});document.getElementById("marketContent").innerHTML=html;}
+    function renderAnalyzer(){const set=DB.find(s=>s.id===state.sid)||DB[0];let html="";if(set.cards&&set.cards.length>0){set.cards.forEach(card=>{const rate=Math.round(1/card.pull);html+=`<div class="card-box"><div class="card-name">${card.n}</div><div class="card-stats">Pull rate: 1 in ${rate} packs | ${Math.ceil(rate/9)} boxes for 1 hit</div><div class="card-value">Raw: $${card.raw} → PSA 10: $${card.p10}</div></div>`;});}else{html=`<div class="empty-state">No card data available for this set yet.</div>`;}document.getElementById("analyzerContent").innerHTML=html;}
+    function renderGrade(){let html=`<div class="info-box">Grading cost vs resale multiplier (M10 = 10, M9 = 9)</div>`;GRADERS.forEach(g=>{html+=`<div class="card-box"><div class="card-name">${g.n}</div><div class="card-stats">Cost: $${g.cost} | Timeline: ${g.days}</div><div class="card-value">M10: ${g.m10}× | M9: ${g.m9}×</div></div>`;});document.getElementById("gradeContent").innerHTML=html;}
+    function renderCompare(){const filtered=DB.filter(s=>s.lang===state.lang);let html=`<div class="info-box">Comparing top 3 ${state.lang.toUpperCase()} sets by market activity</div>`;filtered.slice(0,3).forEach(s=>{const avg=s.prods.reduce((a,p)=>a+p.market,0)/s.prods.length;html+=`<div class="card-box"><div class="card-name">${s.n}</div><div class="card-stats">${s.code} | ${s.prods.length} products | Avg price: $${Math.round(avg)}</div><div class="card-value">${s.note}</div></div>`;});document.getElementById("compareContent").innerHTML=html;}
+    function renderBudget(){let html=`<div class="info-box">Suggest allocation across categories based on risk tolerance.</div><div class="card-box"><strong>Modern Hold</strong><div class="card-stats">35% - ETBs/boxes from sets 1-3 years old</div></div><div class="card-box"><strong>Grading Flips</strong><div class="card-stats">25% - Raw cards for PSA/TAG submits</div></div><div class="card-box"><strong>Vintage Asset</strong><div class="card-stats">25% - Base/Jungle/Shining Fates sealed</div></div><div class="card-box"><strong>New Release</strong><div class="card-stats">15% - Latest 2-3 sets at MSRP</div></div>`;document.getElementById("budgetContent").innerHTML=html;}
+    function renderTracker(){const totals=state.tracker.reduce((a,t)=>({spent:a.spent+t.cost,now:a.now+t.current}),{spent:0,now:0});document.getElementById("trackerSpent").textContent="$"+totals.spent.toFixed(2);document.getElementById("trackerValue").textContent="$"+totals.now.toFixed(2);document.getElementById("trackerValue").style.color=totals.now>=totals.spent?C.green:C.red;let html="";if(state.tracker.length===0){html=`<div class="empty-state">No purchases yet. Add one below!</div>`;}else{state.tracker.forEach((t,i)=>{const pl=t.current-t.cost;html+=`<div class="tracker-item"><div class="tracker-item-info"><div class="tracker-item-name">${t.name}</div><div class="tracker-item-paid">Paid $${t.cost.toFixed(2)}</div></div><div style="text-align: right;"><div style="font-size: 14px; font-weight: 700; color: ${pl>=0?C.green:C.red};">${pl>=0?"+":""}$${pl.toFixed(2)}</div><div style="font-size: 10px; color: #555;">Worth $${t.current.toFixed(2)}</div></div><button class="delete-btn" onclick="deleteTracker(${i})">✕</button></div>`;});}document.getElementById("trackerList").innerHTML=html;}
+    function renderShow(){const set=DB.find(s=>s.id===state.sid)||DB[0];let html=`<div class="info-box"><strong>${set.n}</strong> — Event pricing reference</div>`;set.prods.slice(0,6).forEach((p,i)=>{const pt=PT[p.t];html+=`<div style="display: flex; justify-content: space-between; padding: 10px; background: #111111; border: 1px solid #2A2A2A; border-radius: 6px; margin-bottom: 6px;"><span>${pt.n}</span><strong style="color: #FFCB05;">$${p.market}</strong></div>`;});document.getElementById("showContent").innerHTML=html;}
+    function addTracker(){const name=document.getElementById("trackerName").value;const cost=parseFloat(document.getElementById("trackerCost").value)||0;const current=parseFloat(document.getElementById("trackerValue2").value)||0;if(name&&cost&&current){state.tracker.push({name,cost,current});localStorage.setItem("tcg_tracker",JSON.stringify(state.tracker));document.getElementById("trackerName").value="";document.getElementById("trackerCost").value="";document.getElementById("trackerValue2").value="";renderTracker();}}
+    function deleteTracker(idx){state.tracker.splice(idx,1);localStorage.setItem("tcg_tracker",JSON.stringify(state.tracker));renderTracker();}
+    renderTabs();renderScout();
+  </script>
+</body>
+</html>

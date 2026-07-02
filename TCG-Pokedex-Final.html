@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+  <title>TCG Pokédex</title>
+  <script crossorigin src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.23.5/babel.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0A0A0A; color: #F0EDE4; font-family: system-ui, -apple-system, sans-serif; }
+    input, select { background: #1C1C1C; border: 1px solid #2A2A2A; color: #F0EDE4; border-radius: 8px; padding: 8px 10px; width: 100%; font-size: 14px; outline: none; }
+    button { background: #3DBB50; color: #0A0A0A; border: none; border-radius: 8px; padding: 10px; cursor: pointer; font-weight: 600; font-size: 14px; }
+    button:hover { opacity: 0.9; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useMemo, useEffect } = React;
+
+    const C = {
+      bg: "#0A0A0A", panel: "#111111", p2: "#1C1C1C", border: "#2A2A2A",
+      text: "#F0EDE4", dim: "#888", faint: "#555",
+      red: "#CC0000", yellow: "#FFCB05", blue: "#4A5FD6", green: "#3DBB50"
+    };
+
+    const PT = {
+      loose: { n: "Loose pack", pk: 1, cat: "Packs" },
+      b1: { n: "1-pack", pk: 1, cat: "Packs" },
+      b3: { n: "3-pack", pk: 3, cat: "Packs" },
+      mini_tin: { n: "Mini tin (2p)", pk: 2, cat: "Tins" },
+      bundle: { n: "Bundle (6p)", pk: 6, cat: "Bundles" },
+      etb: { n: "ETB (9p)", pk: 9, cat: "Bundles" },
+      pcetb: { n: "PC ETB (11p)", pk: 11, cat: "Bundles" },
+      box: { n: "Booster box (36p)", pk: 36, cat: "Boxes" },
+      upc: { n: "Ultra Premium (16p+)", pk: 16, cat: "Collections" },
+      jp_pack: { n: "JP pack", pk: 1, cat: "Japanese" },
+      jp_box: { n: "JP box (30p)", pk: 30, cat: "Japanese" },
+      kr_pack: { n: "KR pack", pk: 1, cat: "Korean" },
+      kr_box: { n: "KR box (30p)", pk: 30, cat: "Korean" }
+    };
+
+    const DB = [
+      {
+        id: "en_chaos", lang: "en", n: "Chaos Rising", code: "ME04", lean: "rip",
+        note: "Greninja ex SIR $350. Best rip EV.",
+        prods: [
+          { t: "loose", market: 6.50, v: "skip" }, { t: "b3", market: 14, v: "ok" },
+          { t: "bundle", market: 30, v: "ok" }, { t: "etb", market: 58, v: "ok" },
+          { t: "box", market: 235, v: "ok" }
+        ]
+      },
+      {
+        id: "en_phantasmal", lang: "en", n: "Phantasmal Flames", code: "ME02", lean: "rip",
+        note: "Charizard X SIR $780. Guaranteed ex every pack.",
+        prods: [
+          { t: "loose", market: 5.50, v: "ok" }, { t: "b3", market: 14, v: "ok" },
+          { t: "bundle", market: 28, v: "buy" }, { t: "etb", market: 52, v: "buy" },
+          { t: "box", market: 148, v: "rip" }
+        ]
+      },
+      {
+        id: "en_151", lang: "en", n: "Pokémon 151", code: "SV3.5", lean: "hold",
+        note: "ETBs 4× MSRP. 30th anniversary demand.",
+        prods: [
+          { t: "bundle", market: 120, v: "hold" }, { t: "etb", market: 220, v: "hold" }
+        ]
+      },
+      {
+        id: "en_evolving", lang: "en", n: "Evolving Skies", code: "SWSH7", lean: "hold",
+        note: "Blue-chip. Moonbreon $900.",
+        prods: [
+          { t: "etb", market: 310, v: "hold" }, { t: "box", market: 2600, v: "hold" }
+        ]
+      },
+      {
+        id: "jp_sv11w", lang: "jp", n: "White Flare (JP)", code: "SV11W", lean: "rip",
+        note: "Box ~$80. Good JP entry.",
+        prods: [
+          { t: "jp_pack", market: 4, v: "ok" }, { t: "jp_box", market: 80, v: "ok" }
+        ]
+      },
+      {
+        id: "kr_sv11b", lang: "kr", n: "Black Bolt (KR)", code: "SV11B", lean: "rip",
+        note: "Box ~$45. Reasonable KR rip.",
+        prods: [
+          { t: "kr_pack", market: 2, v: "ok" }, { t: "kr_box", market: 45, v: "ok" }
+        ]
+      }
+    ];
+
+    const PVD = {
+      rip: { l: "RIP IT", c: C.green }, buy: { l: "BUY", c: C.green },
+      ok: { l: "OK", c: C.yellow }, skip: { l: "SKIP", c: "#F08030" },
+      hold: { l: "HOLD", c: C.blue }
+    };
+
+    function App() {
+      const [tab, setTab] = useState("scout");
+      const [lang, setLang] = useState("en");
+      const [sid, setSid] = useState("en_chaos");
+      const [tracker, setTracker] = useState(() => {
+        try { return JSON.parse(localStorage.getItem("tcg_tracker") || "[]"); }
+        catch { return []; }
+      });
+      const [newT, setNewT] = useState({ name: "", cost: "", current: "" });
+
+      useEffect(() => {
+        localStorage.setItem("tcg_tracker", JSON.stringify(tracker));
+      }, [tracker]);
+
+      const filtered = useMemo(() => DB.filter(s => s.lang === lang), [lang]);
+      const set = useMemo(() => DB.find(s => s.id === sid) || DB[0], [sid]);
+      const trackerTotals = useMemo(() => tracker.reduce((a, t) => ({ spent: a.spent + t.cost, now: a.now + t.current }), { spent: 0, now: 0 }), [tracker]);
+
+      return (
+        <div style={{ background: C.bg, color: C.text, minHeight: "100vh" }}>
+          <div style={{ background: C.panel, borderBottom: `1px solid ${C.border}`, padding: "12px 16px", position: "sticky", top: 0, zIndex: 50 }}>
+            <div style={{ fontSize: 22, fontWeight: 700, background: `linear-gradient(90deg,${C.red},${C.yellow})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>TCG Pokédex</div>
+            <div style={{ fontSize: 11, color: C.faint }}>Live market data</div>
+          </div>
+
+          <div style={{ background: C.p2, borderBottom: `1px solid ${C.border}`, display: "flex", gap: 4, padding: "8px" }}>
+            {[
+              { id: "scout", icon: "🎯", l: "Scout" },
+              { id: "market", icon: "📊", l: "Market" },
+              { id: "tracker", icon: "📦", l: "Tracker" }
+            ].map(t => (
+              <button key={t.id} onClick={() => setTab(t.id)} style={{ flex: 1, background: tab === t.id ? C.border : "transparent", color: tab === t.id ? C.yellow : C.dim, border: "none", fontSize: 11, fontWeight: tab === t.id ? 600 : 400, borderRadius: 6 }}>
+                {t.icon} {t.l}
+              </button>
+            ))}
+          </div>
+
+          <div style={{ maxWidth: 780, margin: "0 auto", padding: "14px" }}>
+            {tab === "scout" && (
+              <div>
+                <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+                  {[{ id: "en", n: "EN" }, { id: "jp", n: "JP" }, { id: "kr", n: "KR" }].map(l => (
+                    <button key={l.id} onClick={() => { setLang(l.id); setSid(DB.find(s => s.lang === l.id)?.id || "en_chaos"); }} style={{ flex: 1, background: lang === l.id ? C.p2 : "transparent", color: lang === l.id ? C.yellow : C.dim, border: `1px solid ${lang === l.id ? C.yellow : C.border}` }}>
+                      {l.n}
+                    </button>
+                  ))}
+                </div>
+                <select value={sid} onChange={e => setSid(e.target.value)} style={{ marginBottom: 10 }}>
+                  {filtered.map(s => (
+                    <option key={s.id} value={s.id}>{s.n} ({s.code})</option>
+                  ))}
+                </select>
+
+                <div style={{ background: "rgba(61,187,80,0.10)", border: `1.5px solid ${C.green}`, borderRadius: 12, padding: "14px 16px", marginBottom: 12 }}>
+                  <div style={{ fontSize: 18, fontWeight: 700, color: C.green, marginBottom: 6 }}>📊 {set.n}</div>
+                  <div style={{ fontSize: 13, color: C.dim }}>{set.note}</div>
+                </div>
+
+                {Object.entries(set.prods.reduce((g, p) => { const pt = PT[p.t]; const cat = pt.cat || "Other"; if (!g[cat]) g[cat] = []; g[cat].push(p); return g; }, {})).map(([cat, prods]) => (
+                  <div key={cat} style={{ marginBottom: 14 }}>
+                    <div style={{ fontSize: 10, color: C.faint, marginBottom: 8, fontWeight: 600 }}>{cat.toUpperCase()}</div>
+                    <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 10, overflow: "hidden" }}>
+                      <table style={{ width: "100%", fontSize: 12 }}>
+                        <thead>
+                          <tr style={{ borderBottom: `1px solid ${C.border}`, background: C.p2 }}>
+                            <th style={{ padding: "8px", textAlign: "left", color: C.faint, fontWeight: 400 }}>Product</th>
+                            <th style={{ padding: "8px", textAlign: "center", color: C.faint }}>Market</th>
+                            <th style={{ padding: "8px", textAlign: "center", color: C.faint }}>Verdict</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {prods.map((p, i) => {
+                            const pt = PT[p.t];
+                            const pv = PVD[p.v] || { l: "—", c: C.faint };
+                            return (
+                              <tr key={i} style={{ borderBottom: i < prods.length - 1 ? `1px solid ${C.border}` : "none", background: i % 2 === 0 ? C.bg : C.p2 }}>
+                                <td style={{ padding: "8px" }}>{pt.n}</td>
+                                <td style={{ padding: "8px", textAlign: "center", color: C.yellow, fontWeight: 600 }}>${p.market}</td>
+                                <td style={{ padding: "8px", textAlign: "center" }}>
+                                  <span style={{ background: `${pv.c}20`, color: pv.c, border: `1px solid ${pv.c}44`, borderRadius: 4, padding: "3px 8px", fontSize: 10, fontWeight: 700 }}>{pv.l}</span>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {tab === "market" && (
+              <div>
+                <h3 style={{ color: C.yellow, marginBottom: 16 }}>Market Data - {set.n}</h3>
+                <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 10, padding: 12 }}>
+                  <div style={{ fontSize: 12, color: C.faint }}>Top 3 Products</div>
+                  {set.prods.slice(0, 3).map((p, i) => {
+                    const pt = PT[p.t];
+                    return (
+                      <div key={i} style={{ padding: "8px 0", borderTop: i > 0 ? `1px solid ${C.border}` : "none", display: "flex", justifyContent: "space-between" }}>
+                        <span>{pt.n}</span>
+                        <strong style={{ color: C.yellow }}>${p.market}</strong>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {tab === "tracker" && (
+              <div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 14 }}>
+                  <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: "12px" }}>
+                    <div style={{ fontSize: 10, color: C.faint }}>Spent</div>
+                    <div style={{ fontSize: 16, fontWeight: 700, marginTop: 4 }}>${trackerTotals.spent.toFixed(2)}</div>
+                  </div>
+                  <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: "12px" }}>
+                    <div style={{ fontSize: 10, color: C.faint }}>Value Now</div>
+                    <div style={{ fontSize: 16, fontWeight: 700, color: trackerTotals.now >= trackerTotals.spent ? C.green : C.red, marginTop: 4 }}>${trackerTotals.now.toFixed(2)}</div>
+                  </div>
+                </div>
+
+                {tracker.length === 0 ? (
+                  <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 10, padding: "20px", textAlign: "center", color: C.faint }}>
+                    No purchases yet
+                  </div>
+                ) : (
+                  <div style={{ marginBottom: 16 }}>
+                    {tracker.map((t, i) => {
+                      const pl = t.current - t.cost;
+                      return (
+                        <div key={i} style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 8, padding: "12px", marginBottom: 8, display: "flex", alignItems: "center", gap: 12 }}>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontWeight: 600 }}>{t.name}</div>
+                            <div style={{ fontSize: 11, color: C.faint }}>Paid ${t.cost.toFixed(2)}</div>
+                          </div>
+                          <div style={{ textAlign: "right" }}>
+                            <div style={{ fontSize: 14, fontWeight: 700, color: pl >= 0 ? C.green : C.red }}>{pl >= 0 ? "+" : ""}${pl.toFixed(2)}</div>
+                            <div style={{ fontSize: 10, color: C.faint }}>Worth ${t.current.toFixed(2)}</div>
+                          </div>
+                          <button onClick={() => setTracker(tr => tr.filter((_, j) => j !== i))} style={{ background: "transparent", border: `1px solid ${C.border}`, color: C.faint, borderRadius: 6, padding: "6px 10px" }}>✕</button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                <div style={{ background: C.panel, border: `1px solid ${C.border}`, borderRadius: 10, padding: 12 }}>
+                  <input placeholder="What (e.g. Evolving Skies ETB)" value={newT.name} onChange={e => setNewT(n => ({ ...n, name: e.target.value }))} style={{ marginBottom: 8 }} />
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 8 }}>
+                    <input type="number" placeholder="Paid $" value={newT.cost} onChange={e => setNewT(n => ({ ...n, cost: e.target.value }))} step="0.01" min="0" />
+                    <input type="number" placeholder="Worth $" value={newT.current} onChange={e => setNewT(n => ({ ...n, current: e.target.value }))} step="0.01" min="0" />
+                  </div>
+                  <button onClick={() => { if (newT.name && newT.cost && newT.current) { setTracker(tr => [...tr, { name: newT.name, cost: +newT.cost, current: +newT.current }]); setNewT({ name: "", cost: "", current: "" }); } }} style={{ width: "100%" }}>+ Add Purchase</button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
